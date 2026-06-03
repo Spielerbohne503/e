@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/grey_dark"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Wie lange DeadMode?"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="20dp" />
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="2"
+        android:rowCount="3"
+        android:useDefaultMargins="true">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_15min"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:text="15 Min"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/grey_medium"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_30min"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:text="30 Min"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/grey_medium"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_1h"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:text="1 Stunde"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/grey_medium"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_2h"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:text="2 Stunden"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/grey_medium"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_1day"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:text="1 Tag"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/grey_medium"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_1week"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:text="1 Woche"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/accent_red"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp" />
+
+    </GridLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nach Ablauf wird DeadMode automatisch beendet."
+        android:textColor="@color/text_secondary"
+        android:textSize="12sp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="8dp" />
+
+</LinearLayout>
