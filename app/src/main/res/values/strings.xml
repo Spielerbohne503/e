@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DeadMode</string>
+    <string name="accessibility_service_label">DeadMode App Blocker</string>
+    <string name="accessibility_service_description">Erkennt wenn eine nicht erlaubte App in den Vordergrund tritt und leitet zurück zum DeadMode-Sperrbildschirm.</string>
+    <string name="admin_explanation">DeadMode benötigt Geräteadministrator-Berechtigung, damit die App während einer Fokussitzung nicht deinstalliert werden kann.</string>
+    <string name="admin_disable_warning">Das Entfernen der Administratorrechte beendet deine aktuelle DeadMode-Sitzung sofort.</string>
+    <string name="notification_title">DeadMode aktiv</string>
+    <string name="notification_text">Deine Fokussitzung läuft.</string>
+    <string name="nfc_unavailable">NFC nicht verfügbar auf diesem Gerät.</string>
+    <string name="setup_required_title">Setup erforderlich</string>
+    <string name="setup_required_admin">Bitte gewähre zuerst die Geräteadministrator-Berechtigung.</string>
+    <string name="setup_required_accessibility">Bitte aktiviere zuerst den DeadMode App Blocker in den Bedienungshilfen.</string>
+    <string name="btn_setup_admin">Geräteadmin aktivieren</string>
+    <string name="btn_setup_accessibility">Bedienungshilfe aktivieren</string>
+    <string name="btn_setup_vpn">VPN-Berechtigung erteilen</string>
+    <string name="btn_setup_dnd">Bitte-nicht-stören erlauben</string>
+    <string name="btn_test_trigger">DeadMode starten (Test)</string>
+    <string name="status_ready">Bereit — NFC-Karte ans Handy halten</string>
+    <string name="nfc_hint">Halte deine NFC-Karte ans Handy, um DeadMode zu starten.</string>
+    <string name="dead_screen_hint">Nur Telefon-App verfügbar</string>
+    <string name="setup_title">DeadMode Setup</string>
+</resources>

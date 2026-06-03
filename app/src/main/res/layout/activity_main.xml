@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/grey_dark"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/setup_title"
+            android:textColor="@color/white"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="40dp" />
+
+        <TextView
+            android:id="@+id/tv_nfc_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/accent_red"
+            android:textSize="14sp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/tv_title"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="8dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_setup_admin"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="@string/btn_setup_admin"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/grey_medium"
+            app:layout_constraintTop_toBottomOf="@id/tv_nfc_status"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="32dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_setup_accessibility"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="@string/btn_setup_accessibility"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/grey_medium"
+            app:layout_constraintTop_toBottomOf="@id/btn_setup_admin"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="12dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_setup_vpn"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="@string/btn_setup_vpn"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/grey_medium"
+            app:layout_constraintTop_toBottomOf="@id/btn_setup_accessibility"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="12dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_setup_dnd"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="@string/btn_setup_dnd"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/grey_medium"
+            app:layout_constraintTop_toBottomOf="@id/btn_setup_vpn"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="12dp" />
+
+        <TextView
+            android:id="@+id/tv_ready_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/status_ready"
+            android:textColor="#00C853"
+            android:textSize="16sp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/btn_setup_dnd"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="24dp" />
+
+        <TextView
+            android:id="@+id/tv_nfc_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/nfc_hint"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:visibility="gone"
+            android:textAlignment="center"
+            app:layout_constraintTop_toBottomOf="@id/tv_ready_status"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="8dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_test_trigger"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="@string/btn_test_trigger"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/accent_red"
+            app:layout_constraintTop_toBottomOf="@id/tv_nfc_hint"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="40dp"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
