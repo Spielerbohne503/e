@@ -8,11 +8,11 @@ Beispiel-Ausgabe:
 
 ```
 MeinOrdner/
-   |_> video.mp4
-   |_> bilder/
-      |_> foto1.jpg
-      |_> foto2.jpg
-   |_> notizen.txt
+├── bilder/
+│   ├── foto1.jpg
+│   └── foto2.jpg
+├── notizen.txt
+└── video.mp4
 ```
 
 ---

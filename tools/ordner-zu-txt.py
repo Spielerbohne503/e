@@ -13,11 +13,11 @@ python.org).
 Beispiel-Ausgabe:
 
     MeinOrdner/
-       |_> video.mp4
-       |_> bilder/
-          |_> foto1.jpg
-          |_> foto2.jpg
-       |_> notizen.txt
+    ├── bilder/
+    │   ├── foto1.jpg
+    │   └── foto2.jpg
+    ├── notizen.txt
+    └── video.mp4
 
 Verwendung
 ----------
@@ -74,20 +74,23 @@ def baue_baum(wurzel, nur_ordner=False):
     name = os.path.basename(os.path.normpath(wurzel)) or wurzel
     zeilen.append(name + "/")
 
-    def rekursion(pfad, tiefe):
-        for eintrag_name, eintrag_pfad, ist_ordner in liste_eintraege(pfad):
-            if nur_ordner and not ist_ordner:
-                continue
-            if ist_ordner:
-                zaehler["ordner"] += 1
-            else:
-                zaehler["dateien"] += 1
-            label = eintrag_name + "/" if ist_ordner else eintrag_name
-            zeilen.append("   " * tiefe + "|_> " + label)
-            if ist_ordner:
-                rekursion(eintrag_pfad, tiefe + 1)
+    def rekursion(pfad, praefix):
+        alle = liste_eintraege(pfad)
+        # Alle Eintraege zaehlen (auch wenn nur Ordner angezeigt werden)
+        for _name, _pfad, ist_ordner in alle:
+            zaehler["ordner" if ist_ordner else "dateien"] += 1
 
-    rekursion(wurzel, 1)
+        anzuzeigen = [e for e in alle if e[2]] if nur_ordner else alle
+        anzahl = len(anzuzeigen)
+        for index, (eintrag_name, eintrag_pfad, ist_ordner) in enumerate(anzuzeigen):
+            letzte = index == anzahl - 1
+            verbinder = "└── " if letzte else "├── "
+            label = eintrag_name + "/" if ist_ordner else eintrag_name
+            zeilen.append(praefix + verbinder + label)
+            if ist_ordner:
+                rekursion(eintrag_pfad, praefix + ("    " if letzte else "│   "))
+
+    rekursion(wurzel, "")
     return zeilen, zaehler
 
 
@@ -111,6 +114,12 @@ def sicherer_dateiname(name):
 
 
 def main():
+    # Box-Zeichen (└── │) auch auf der Windows-Konsole korrekt ausgeben
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
     parser = argparse.ArgumentParser(
         description="Liest alle Ordner und Dateien und speichert sie als .txt-Baum."
     )

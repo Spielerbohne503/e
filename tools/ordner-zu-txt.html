@@ -100,11 +100,11 @@
 So sieht das Ergebnis aus:
 
 MeinOrdner/
-   |_&gt; video.mp4
-   |_&gt; bilder/
-      |_&gt; foto1.jpg
-      |_&gt; foto2.jpg
-   |_&gt; notizen.txt</pre>
+├── bilder/
+│   ├── foto1.jpg
+│   └── foto2.jpg
+├── notizen.txt
+└── video.mp4</pre>
     <div class="hint">
       <b>Hinweis:</b> In Chrome, Edge und Opera werden auch leere Ordner erfasst (über den modernen Datei-Zugriff).
       In Firefox/Safari werden Ordner über die enthaltenen Dateien erkannt — komplett leere Unterordner können dort fehlen.
@@ -146,20 +146,19 @@ function countNodes(node, acc = { dirs: 0, files: 0 }) {
 
 /* ---------- Baum -> Text ---------- */
 
-function renderNode(node, depth, lines, onlyFolders) {
-  const label = node.isDir ? node.name + "/" : node.name;
-  if (depth === 0) {
-    lines.push(label);
-  } else {
-    lines.push("   ".repeat(depth) + "|_> " + label);
-  }
-  if (node.isDir) {
-    const kids = [...node.children.values()].sort(sortNodes);
-    for (const k of kids) {
-      if (onlyFolders && !k.isDir) continue;
-      renderNode(k, depth + 1, lines, onlyFolders);
-    }
-  }
+function renderTree(root, onlyFolders) {
+  const lines = [root.name + "/"];
+  (function walk(node, prefix) {
+    let kids = [...node.children.values()].sort(sortNodes);
+    if (onlyFolders) kids = kids.filter((k) => k.isDir);
+    kids.forEach((k, i) => {
+      const last = i === kids.length - 1;
+      const label = k.isDir ? k.name + "/" : k.name;
+      lines.push(prefix + (last ? "└── " : "├── ") + label);
+      if (k.isDir) walk(k, prefix + (last ? "    " : "│   "));
+    });
+  })(root, "");
+  return lines;
 }
 
 function buildText(root, onlyFolders) {
@@ -171,9 +170,7 @@ function buildText(root, onlyFolders) {
   lines.push("Ordner: " + dirs + "   |   Dateien: " + files);
   lines.push("=".repeat(60));
   lines.push("");
-  const tree = [];
-  renderNode(root, 0, tree, onlyFolders);
-  lines.push(...tree);
+  lines.push(...renderTree(root, onlyFolders));
   lines.push("");
   return { text: lines.join("\n"), dirs, files };
 }
