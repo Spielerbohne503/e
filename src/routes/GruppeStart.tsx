@@ -119,7 +119,12 @@ export function GruppeStart() {
         </LeerZustand>
       ) : (
         <>
-          <h2 className="text-[19px] font-medium mt-6 mb-3">Belege</h2>
+          <div className="flex items-baseline justify-between mt-6 mb-3">
+            <h2 className="text-[19px] font-medium">Belege</h2>
+            <Link to={`/g/${id}/auswertung`} className="tap-ziel inline-flex items-center text-sm text-tinte-2 underline underline-offset-4">
+              Auswertung
+            </Link>
+          </div>
           <ul className="grid gap-3">
             {receipts.map((r, i) => {
               const zahler = members.find((m) => m.id === r.payer_id)

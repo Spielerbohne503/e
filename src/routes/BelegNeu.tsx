@@ -9,6 +9,7 @@ import { BelegEditor } from '@/features/beleg/BelegEditor'
 import { FahrtRechner } from '@/features/fahrt/FahrtRechner'
 import { JsonImport } from '@/features/import/JsonImport'
 import { leererEntwurf, type BelegEntwurf } from '@/features/beleg/entwurf'
+import { BonEinzug } from '@/components/Bewegung'
 import { useSnapshot } from '@/api/hooks'
 import { today } from '@/lib/format'
 
@@ -71,10 +72,15 @@ export function BelegNeu() {
         <FahrtRechner gruppeId={id} snapshot={data} />
       ) : modus === 'import' && !entwurf ? (
         <JsonImport snapshot={data} onUebernehmen={setEntwurf} />
-      ) : (
+      ) : entwurf ? (
         // The imported draft is edited with the ordinary form — the preview
-        // and the correction step are the same screen.
-        <BelegEditor key={entwurf ? 'import' : 'manuell'} gruppeId={id} snapshot={data} start={start} />
+        // and the correction step are the same screen. The receipt runs in
+        // from above once, as if it came out of a printer.
+        <BonEinzug>
+          <BelegEditor key="import" gruppeId={id} snapshot={data} start={start} />
+        </BonEinzug>
+      ) : (
+        <BelegEditor key="manuell" gruppeId={id} snapshot={data} start={start} />
       )}
     </Rahmen>
   )

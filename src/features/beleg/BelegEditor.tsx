@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import type { ItemKind } from '@/core/types'
 import type { Member, Snapshot } from '@/shared/api'
 import { allocateReceipt } from '@/core/allocate'
+import { baueVorschlaege, vorschlagFuer } from '@/core/statistik'
 import { Papier, Bon, Handnotiz } from '@/components/Papier'
 import { Knopf, IkonKnopf } from '@/components/Knopf'
 import { Feld, Auswahl, Textfeld } from '@/components/Feld'
@@ -10,7 +11,8 @@ import { PersonChip } from '@/components/Person'
 import { Betrag } from '@/components/Betrag'
 import { WaehrungsKnopf } from '@/components/WaehrungsWaehler'
 import { formatMoney } from '@/lib/format'
-import { useBelegLoeschen, useBelegSpeichern } from '@/api/hooks'
+import { useBelegLoeschen, useBelegSpeichern, zuCoreDaten } from '@/api/hooks'
+import { KlebeNotiz, Knuellbar } from '@/components/Bewegung'
 import { ZuordnungsSheet } from './ZuordnungsSheet'
 import {
   alsApiKoerper,
@@ -57,6 +59,7 @@ export function BelegEditor({
         fxRateToBase: entwurf.fxRateToBase,
         totalCents: entwurf.totalCents,
         date: entwurf.date || null,
+        merchant: entwurf.merchant || null,
         items: entwurf.positionen.map((p, i) => ({
           id: p.key,
           name: p.name,
@@ -71,6 +74,13 @@ export function BelegEditor({
       mitglieder.map((m) => ({ id: m.id, sortOrder: m.sort_order })),
     )
   }, [entwurf, mitglieder])
+
+  // What this group did with the same article before. Only articles seen at
+  // least twice make it in, so a one-off never becomes a habit.
+  const vorschlaege = useMemo(
+    () => baueVorschlaege(zuCoreDaten(snapshot).receipts.filter((r) => r.id !== start.id)),
+    [snapshot, start.id],
+  )
 
   const aendere = (teil: Partial<BelegEntwurf>) => setEntwurf((alt) => ({ ...alt, ...teil }))
 
@@ -173,23 +183,28 @@ export function BelegEditor({
 
         <ul className="px-5">
           {entwurf.positionen.map((p) => (
-            <PositionsZeile
+            <Knuellbar
               key={p.key}
-              position={p}
-              mitglieder={mitglieder}
-              currency={entwurf.currency}
-              onAendern={(teil) => positionAendern(p.key, teil)}
-              onZuordnen={() => setZuordnung(p.key)}
-              onEntfernen={
-                entwurf.positionen.length > 1
-                  ? () =>
-                      setEntwurf((alt) => ({
-                        ...alt,
-                        positionen: alt.positionen.filter((x) => x.key !== p.key),
-                      }))
-                  : undefined
+              beschreibung={p.name.trim() || KIND_LABELS[p.kind]}
+              onEntfernen={() =>
+                setEntwurf((alt) => ({
+                  ...alt,
+                  positionen: alt.positionen.filter((x) => x.key !== p.key),
+                }))
               }
-            />
+            >
+              {(loeschen: () => void) => (
+                <PositionsZeile
+                  position={p}
+                  mitglieder={mitglieder}
+                  currency={entwurf.currency}
+                  vorschlag={p.splits.length === 0 ? vorschlagFuer(vorschlaege, p.name) : null}
+                  onAendern={(teil) => positionAendern(p.key, teil)}
+                  onZuordnen={() => setZuordnung(p.key)}
+                  onEntfernen={entwurf.positionen.length > 1 ? loeschen : undefined}
+                />
+              )}
+            </Knuellbar>
           ))}
         </ul>
 
@@ -254,6 +269,13 @@ export function BelegEditor({
       )}
 
       <Papier className="p-5 mt-4">
+        {/* A note that was already saved is shown as what it is: a sticky
+            note on the receipt. Exactly one per screen. */}
+        {start.note.trim() && (
+          <div className="flex justify-center mb-5">
+            <KlebeNotiz text={start.note.trim()} />
+          </div>
+        )}
         <Textfeld
           label="Notiz"
           value={entwurf.note}
@@ -306,6 +328,7 @@ function PositionsZeile({
   position,
   mitglieder,
   currency,
+  vorschlag,
   onAendern,
   onZuordnen,
   onEntfernen,
@@ -313,6 +336,8 @@ function PositionsZeile({
   position: EntwurfPosition
   mitglieder: Member[]
   currency: string
+  /** Learned from the group's history; null when there is nothing to go on. */
+  vorschlag: { memberIds: string[]; belege: number } | null
   onAendern: (teil: Partial<EntwurfPosition>) => void
   onZuordnen: () => void
   onEntfernen?: () => void
@@ -356,6 +381,34 @@ function PositionsZeile({
         )}
       </div>
 
+      {vorschlag && vorschlag.memberIds.length > 0 && (
+        <div className="flex items-center gap-2 mt-2 flex-wrap">
+          <button
+            type="button"
+            onClick={() =>
+              onAendern({
+                splits: vorschlag.memberIds.map((memberId) => ({
+                  memberId,
+                  mode: 'equal' as const,
+                  value: 1,
+                })),
+              })
+            }
+            className="tap-ziel flex items-center gap-1.5 min-h-9 px-2.5 rounded-pille bg-lavendel-weich text-sm"
+          >
+            <span className="flex -space-x-1.5">
+              {vorschlag.memberIds
+                .map((mid) => mitglieder.find((m) => m.id === mid))
+                .filter((m): m is Member => Boolean(m))
+                .map((m) => (
+                  <PersonChip key={m.id} person={m} className="!w-5 !h-5 !text-[10px]" />
+                ))}
+            </span>
+            wie sonst auch
+          </button>
+        </div>
+      )}
+
       <div className="flex items-center gap-2 mt-2 flex-wrap">
         {istSammelposten ? (
           <span className="text-sm px-2.5 py-1 rounded-pille bg-lavendel-weich text-tinte">
@@ -366,7 +419,7 @@ function PositionsZeile({
             value={position.category ?? ''}
             onChange={(e) => onAendern({ category: e.target.value || null })}
             aria-label="Kategorie"
-            className="text-sm min-h-9 px-2 rounded-pille bg-papier border border-strich"
+            className="tap-ziel text-sm min-h-9 px-2 rounded-pille bg-papier border border-strich"
           >
             <option value="">Kategorie</option>
             {CATEGORIES.map((c) => (
@@ -380,7 +433,7 @@ function PositionsZeile({
         <button
           type="button"
           onClick={onZuordnen}
-          className="flex items-center gap-1.5 min-h-9 px-2.5 rounded-pille bg-papier border border-strich"
+          className="tap-ziel flex items-center gap-1.5 min-h-9 px-2.5 rounded-pille bg-papier border border-strich"
           aria-label={
             zugeordnet.length === 0
               ? 'Personen zuordnen'

@@ -48,6 +48,7 @@ function receipt(payerId: string, items: Item[], extra: Partial<Receipt> = {}): 
     fxRateToBase: 1,
     totalCents: items.reduce((a, i) => a + i.totalCents, 0),
     date: '2026-09-01',
+    merchant: null,
     items: items.map((it, i) => ({ ...it, sortOrder: i })),
     ...extra,
   }

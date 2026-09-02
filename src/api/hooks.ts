@@ -171,6 +171,7 @@ export function zuCoreDaten(snapshot: Snapshot): {
     fxRateToBase: r.fx_rate_to_base,
     totalCents: r.total_cents,
     date: r.date,
+    merchant: r.merchant,
     items: r.items.map(
       (i): CoreItem => ({
         id: i.id,

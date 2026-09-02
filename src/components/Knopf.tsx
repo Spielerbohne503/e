@@ -10,7 +10,7 @@ const BASIS =
   'disabled:pointer-events-none select-none'
 
 const ARTEN: Record<Art, string> = {
-  primaer: 'bg-nacht text-white shadow-ruhe',
+  primaer: 'bg-knopf text-knopf-tinte shadow-ruhe',
   zweit: 'bg-karte text-tinte shadow-ruhe',
   geist: 'bg-transparent text-tinte-2 hover:text-tinte',
   // Reserved for destructive actions — a debt is never rendered in this colour.

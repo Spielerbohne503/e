@@ -95,15 +95,15 @@ export function Umschalter<T extends string>({
 }) {
   return (
     <div className={className} role="group" aria-label={label}>
-      <div className="inline-flex p-1 rounded-pille bg-papier border border-strich gap-1">
+      <div className="inline-flex flex-wrap max-w-full p-1 rounded-pille bg-papier border border-strich gap-1">
         {optionen.map((o) => (
           <button
             key={o.wert}
             type="button"
             aria-pressed={wert === o.wert}
             onClick={() => onWechsel(o.wert)}
-            className={`min-h-9 px-3.5 rounded-pille text-sm font-bold transition-colors duration-[--dauer-tipp] ${
-              wert === o.wert ? 'bg-nacht text-white' : 'text-tinte-2'
+            className={`tap-ziel min-h-9 px-3.5 rounded-pille text-sm font-bold transition-colors duration-[--dauer-tipp] ${
+              wert === o.wert ? 'bg-knopf text-knopf-tinte' : 'text-tinte-2'
             }`}
           >
             {o.text}
@@ -141,7 +141,7 @@ export function Schalter({
         role="switch"
         aria-checked={an}
         onClick={() => onWechsel(!an)}
-        className={`relative shrink-0 w-[52px] h-8 rounded-pille transition-colors duration-[--dauer-standard] ${
+        className={`tap-ziel shrink-0 w-[52px] h-8 rounded-pille transition-colors duration-[--dauer-standard] ${
           an ? 'bg-mint' : 'bg-strich'
         }`}
       >

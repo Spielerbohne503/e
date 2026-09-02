@@ -3,6 +3,7 @@ import type { Snapshot } from '@/shared/api'
 import { Papier } from '@/components/Papier'
 import { Knopf } from '@/components/Knopf'
 import { Zetti } from '@/components/Zetti'
+import { Haken } from '@/components/Stempel'
 import { importPrompt, kategorieAus, parseImport, type ImportBelegDaten } from './parser'
 import {
   leerePosition,
@@ -74,8 +75,10 @@ export function JsonImport({
           <li>Antwort zurück hierher kopieren</li>
         </ol>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-3">
           <Knopf onClick={promptKopieren}>{kopiert ? 'Kopiert' : 'Prompt kopieren'}</Knopf>
+          {/* Confirmations draw themselves rather than popping in. */}
+          {kopiert && <Haken groesse={32} />}
         </div>
       </Papier>
 

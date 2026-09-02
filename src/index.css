@@ -36,6 +36,14 @@
   --lavendel: #7c5cff;
   --lavendel-weich: #eae4ff;
 
+  /*
+   * The primary action. In light mode it is the one dark surface, as the
+   * design says. In dark mode nachtgruen on near-black would be almost
+   * invisible, so the roles swap and mint carries the action instead.
+   */
+  --knopf-grund: var(--nacht);
+  --knopf-tinte: #ffffff;
+
   /* Real errors only — never used for a debt. */
   --fehler: #d92d20;
   --fehler-weich: #fee4e2;
@@ -82,6 +90,8 @@
     --bon-weich: #38301a;
     --lavendel-weich: #262040;
     --nacht: #0a2c26;
+    --knopf-grund: #00b37e;
+    --knopf-tinte: #04352a;
     --fehler: #f97066;
     --fehler-weich: #3a1a17;
     --faser: rgba(231, 237, 233, 0.028);
@@ -110,6 +120,8 @@
   --bon-weich: #38301a;
   --lavendel-weich: #262040;
   --nacht: #0a2c26;
+  --knopf-grund: #00b37e;
+  --knopf-tinte: #04352a;
   --fehler: #f97066;
   --fehler-weich: #3a1a17;
   --faser: rgba(231, 237, 233, 0.028);
@@ -138,6 +150,8 @@
   --color-bon: var(--bon);
   --color-bon-weich: var(--bon-weich);
   --color-nacht: var(--nacht);
+  --color-knopf: var(--knopf-grund);
+  --color-knopf-tinte: var(--knopf-tinte);
   --color-lavendel: var(--lavendel);
   --color-lavendel-weich: var(--lavendel-weich);
   --color-fehler: var(--fehler);
@@ -284,6 +298,23 @@
 
 @utility trennstrich {
   border-bottom: 1px dashed var(--strich);
+}
+
+/*
+ * Enlarges the touch target to 44px without changing the layout. Small pills
+ * and switches keep their drawn size; the invisible area around them grows.
+ */
+@utility tap-ziel {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 44px;
+    transform: translateY(-50%);
+  }
 }
 
 /* Adhesive tape across the top edge of a card. */
@@ -528,5 +559,53 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Print — the PDF export is the browser's own "save as PDF".
+ * Paper texture, shadows and tilts come off; the numbers stay.
+ * ------------------------------------------------------------------ */
+
+@media print {
+  :root {
+    --papier: #ffffff;
+    --karte: #ffffff;
+    --tinte: #000000;
+    --tinte-2: #444444;
+    --strich: rgba(0, 0, 0, 0.25);
+    --faser: transparent;
+    --punkt-1: transparent;
+    --punkt-2: transparent;
+    --schatten-ruhe: none;
+    --schatten-hoch: none;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  /* Controls have no meaning on paper. */
+  button,
+  select,
+  .kein-druck {
+    display: none !important;
+  }
+
+  /* Nothing sticks, nothing leans, nothing is cut off across a page. */
+  header {
+    position: static !important;
+  }
+  .kipp-l,
+  .kipp-r {
+    transform: none !important;
+  }
+  li,
+  tr {
+    break-inside: avoid;
+  }
+
+  a[href]::after {
+    content: '';
   }
 }

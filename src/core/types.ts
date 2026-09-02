@@ -72,6 +72,8 @@ export interface Receipt {
   /** In `currency`. This is what was actually paid at the till. */
   totalCents: number
   date: string | null
+  /** Where it was spent. Used to spot duplicates and recurring costs. */
+  merchant: string | null
   items: Item[]
 }
 

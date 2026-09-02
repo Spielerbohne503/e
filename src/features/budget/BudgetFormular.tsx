@@ -99,8 +99,8 @@ export function BudgetFormular({
                 onClick={() =>
                   setKategorien((alt) => (an ? alt.filter((x) => x !== c) : [...alt, c]))
                 }
-                className={`min-h-9 px-3 rounded-pille text-sm border transition-colors duration-[--dauer-tipp] ${
-                  an ? 'bg-nacht text-white border-transparent' : 'bg-papier border-strich text-tinte-2'
+                className={`tap-ziel min-h-9 px-3 rounded-pille text-sm border transition-colors duration-[--dauer-tipp] ${
+                  an ? 'bg-knopf text-knopf-tinte border-transparent' : 'bg-papier border-strich text-tinte-2'
                 }`}
               >
                 {CATEGORY_LABELS[c as Category]}

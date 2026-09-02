@@ -7,6 +7,7 @@ import { BelegNeu } from '@/routes/BelegNeu'
 import { BelegBearbeiten } from '@/routes/BelegBearbeiten'
 import { Salden } from '@/routes/Salden'
 import { Einstellungen } from '@/routes/Einstellungen'
+import { Auswertung } from '@/routes/Auswertung'
 import { wendeThemeAn } from '@/lib/speicher'
 
 export function App() {
@@ -23,6 +24,7 @@ export function App() {
       <Route path="/g/:id/beleg/neu" element={<BelegNeu />} />
       <Route path="/g/:id/beleg/:rid" element={<BelegBearbeiten />} />
       <Route path="/g/:id/salden" element={<Salden />} />
+      <Route path="/g/:id/auswertung" element={<Auswertung />} />
       <Route path="/g/:id/einstellungen" element={<Einstellungen />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

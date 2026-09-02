@@ -74,12 +74,32 @@ npm test           # Rechenkern
 npm run typecheck
 ```
 
+## Was drin ist
+
+- **Gruppen und Personen** — Personen sind reine Labels, ohne Konto und ohne
+  E-Mail. Wer schon Belege bezahlt hat, wird beim Entfernen archiviert statt
+  gelöscht, damit der Verlauf heil bleibt.
+- **Belege** manuell, als Fahrt oder per JSON-Import. Vier Aufteilungsmodi
+  (gleich, Anteile, Prozent, feste Beträge) mit Live-Vorschau.
+- **Fahrtkosten-Rechner** — Strecke mal Satz, Hin-und-zurück, Zusatzkosten wie
+  Maut oder Parken. Erzeugt einen gewöhnlichen Beleg mit Kategorie
+  `transport`, damit eine Fahrt ohne Sonderfall durch Salden, Netting, Budget
+  und Export läuft.
+- **Salden und Ausgleich** mit zwei Verfahren: Dreiecke auflösen (die
+  wenigsten Zahlungen) oder nur direkt (niemand zahlt an Unbeteiligte).
+- **Budget** optional, mit Farbschwellen und Hochrechnung. Ohne Budget gibt es
+  die Leiste gar nicht.
+- **Auswertung** pro Person, Kategorie und Monat, plus Duplikat-Erkennung,
+  wiederkehrende Kosten und CSV-Export.
+- **Sync ohne Login** über einen Link mit 32-stelligem Token, optional mit PIN.
+
 ## Aufbau
 
 ```
 src/core/        Rechenkern — keine Abhängigkeit zu React oder D1
+                 split · allocate · balance · settle · travel · budget · statistik
 src/components/  Papiersorten, Knöpfe, Personen, Sheets
-src/features/    Fachliche Bildschirme
+src/features/    Fachliche Bildschirme: beleg, fahrt, import, budget
 src/routes/      Seiten
 src/lib/         Intl-Formatierung, IDs, Farben
 functions/api/   Pages Functions

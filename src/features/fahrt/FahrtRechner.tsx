@@ -211,9 +211,9 @@ export function FahrtRechner({
                   type="button"
                   onClick={() => setSatzText((p.ratePerKmCents / 100).toFixed(2).replace('.', ','))}
                   aria-pressed={satzCents === p.ratePerKmCents}
-                  className={`min-h-9 px-3 rounded-pille text-sm border transition-colors duration-[--dauer-tipp] ${
+                  className={`tap-ziel min-h-9 px-3 rounded-pille text-sm border transition-colors duration-[--dauer-tipp] ${
                     satzCents === p.ratePerKmCents
-                      ? 'bg-nacht text-white border-transparent'
+                      ? 'bg-knopf text-knopf-tinte border-transparent'
                       : 'bg-papier border-strich text-tinte-2'
                   }`}
                 >

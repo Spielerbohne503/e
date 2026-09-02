@@ -18,6 +18,7 @@ import {
 } from '@/api/hooks'
 import { api } from '@/api/client'
 import { nextColor } from '@/lib/colors'
+import { setzeSprache, useSprache } from '@/lib/i18n'
 import {
   merkeGruppe,
   merkePin,
@@ -43,6 +44,7 @@ export function Einstellungen() {
   const [budgetOffen, setBudgetOffen] = useState(false)
   const [pinOffen, setPinOffen] = useState(false)
   const [theme, setThemeState] = useState<ThemeWahl>(() => themeWahl())
+  const { sprache } = useSprache()
   const [hinweis, setHinweis] = useState<string | null>(null)
 
   if (isLoading || !data) {
@@ -137,9 +139,9 @@ export function Einstellungen() {
             onKeyDown={(e) => e.key === 'Enter' && personAnlegen()}
             placeholder="Noch jemand"
             aria-label="Name der neuen Person"
-            className="flex-1 min-h-11 px-3 rounded-klein bg-papier border border-strich focus:border-lavendel"
+            className="flex-1 min-w-0 min-h-11 px-3 rounded-klein bg-papier border border-strich focus:border-lavendel"
           />
-          <Knopf art="zweit" onClick={personAnlegen} disabled={!neuerName.trim()}>
+          <Knopf art="zweit" onClick={personAnlegen} disabled={!neuerName.trim()} className="shrink-0">
             Hinzufügen
           </Knopf>
         </div>
@@ -247,6 +249,19 @@ export function Einstellungen() {
             { wert: 'dunkel', text: 'Dunkel' },
           ]}
         />
+        <div className="mt-3">
+          <span className="block text-sm font-bold mb-1.5">Sprache</span>
+          <Umschalter
+            label="Sprache"
+            wert={sprache}
+            onWechsel={setzeSprache}
+            optionen={[
+              { wert: 'de' as const, text: 'Deutsch' },
+              { wert: 'en' as const, text: 'English' },
+            ]}
+          />
+        </div>
+
         <div className="mt-2">
           <Schalter
             label="Zetti anzeigen"
