@@ -4,23 +4,13 @@
  * these helpers are the only place they turn into text.
  */
 
+import { decimalsFor, minorUnitFactor } from '@/core/currency'
+
 const LOCALE = 'de-DE'
 
-/** Currencies whose smallest unit is the whole unit (no decimals). */
-const ZERO_DECIMAL = new Set(['JPY', 'KRW', 'VND', 'CLP', 'ISK', 'HUF', 'TWD', 'UGX', 'XAF', 'XOF'])
-/** Currencies with three decimals. */
-const THREE_DECIMAL = new Set(['BHD', 'IQD', 'JOD', 'KWD', 'LYD', 'OMR', 'TND'])
-
-export function decimalsFor(currency: string): number {
-  if (ZERO_DECIMAL.has(currency)) return 0
-  if (THREE_DECIMAL.has(currency)) return 3
-  return 2
-}
-
-/** Minor units per major unit, e.g. 100 for EUR, 1 for JPY. */
-export function minorUnitFactor(currency: string): number {
-  return 10 ** decimalsFor(currency)
-}
+// Currency precision lives in the core, so the calculation layer stays
+// self-contained; the formatters here just re-export it for convenience.
+export { decimalsFor, minorUnitFactor } from '@/core/currency'
 
 const moneyCache = new Map<string, Intl.NumberFormat>()
 
