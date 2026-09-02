@@ -1,9 +1,11 @@
 import type { z, ZodError, ZodTypeAny } from 'zod'
 
-/** Cloudflare bindings this project expects. Set under Pages > Functions. */
+/** Cloudflare bindings this project expects. Declared in wrangler.toml. */
 export interface Env {
   DB: D1Database
   FX: KVNamespace
+  /** The built single-page app. Serves everything outside /api. */
+  ASSETS: Fetcher
 }
 
 export type Handler = (ctx: {

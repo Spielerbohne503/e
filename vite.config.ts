@@ -10,8 +10,8 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    // Local API during development is served by `wrangler pages dev`.
-    proxy: { '/api': 'http://127.0.0.1:8788' },
+    // Local API during development is served by `npm run worker:dev`.
+    proxy: { '/api': 'http://127.0.0.1:8787' },
   },
   test: {
     environment: 'node',

@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "db:local": "wrangler d1 migrations apply quitt --local",
     "db:remote": "wrangler d1 migrations apply quitt --remote",
-    "pages:dev": "wrangler pages dev dist --d1 DB=quitt --kv FX"
+    "worker:dev": "wrangler dev",
+    "deploy": "wrangler deploy"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.62.7",
@@ -22,7 +23,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20241230.0",
+    "@cloudflare/workers-types": "^5.20260902.1",
     "@tailwindcss/vite": "^4.0.0",
     "@types/node": "^26.4.1",
     "@types/react": "^18.3.17",
@@ -33,6 +34,6 @@
     "typescript": "^5.7.2",
     "vite": "^6.0.5",
     "vitest": "^3.2.7",
-    "wrangler": "^3.99.0"
+    "wrangler": "^4.128.0"
   }
 }

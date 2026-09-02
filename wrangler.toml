@@ -1,17 +1,29 @@
 name = "quitt"
-compatibility_date = "2024-12-30"
-pages_build_output_dir = "dist"
+main = "worker/index.ts"
+compatibility_date = "2025-09-01"
 
-# D1 — created once in the Cloudflare dashboard or via:
-#   wrangler d1 create quitt
+# The built SPA. Anything outside /api is served straight from here, and an
+# unknown path falls back to index.html so React Router can handle deep links.
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+# Cloudflare's build step runs this before uploading, so the deploy does not
+# depend on a build command being configured in the dashboard.
+[build]
+command = "npm run build"
+
+# D1 — created once via:
+#   npx wrangler d1 create quitt
 # then paste the returned database_id here.
 [[d1_databases]]
 binding = "DB"
 database_name = "quitt"
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "PLATZHALTER_D1_ID"
 
 # KV — caches the daily FX rates. Created via:
-#   wrangler kv namespace create FX
+#   npx wrangler kv namespace create FX
 [[kv_namespaces]]
 binding = "FX"
-id = "0123456789abcdef0123456789abcdef"
+id = "PLATZHALTER_KV_ID"

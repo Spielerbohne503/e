@@ -1,4 +1,0 @@
-# SPA fallback: every non-API path is served by index.html so React Router
-# can handle deep links like /g/<id>/beleg/<id>.
-/api/*  /api/:splat  200
-/*      /index.html  200

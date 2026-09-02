@@ -11,7 +11,7 @@ Zugang zu einer Gruppe hängt an einem 32-stelligen Token im Sync-Link.
 | Baustein    | Wahl                                            |
 | ----------- | ----------------------------------------------- |
 | Frontend    | React 18 · Vite 6 · TypeScript · Tailwind v4    |
-| API         | Cloudflare Pages Functions (`/functions/api`)    |
+| API         | Cloudflare Worker (`worker/`) mit Static Assets  |
 | Datenbank   | Cloudflare D1 (SQLite), Migrationen im Repo      |
 | Cache       | Cloudflare KV (Wechselkurse, einmal täglich)     |
 | Validierung | zod                                              |
@@ -22,7 +22,10 @@ Request an Google Fonts.
 
 ## Erstes Setup bei Cloudflare
 
-Diese Schritte laufen einmal im Cloudflare-Dashboard bzw. lokal mit `wrangler`.
+quitt läuft als **Worker mit Static Assets**: ein einziger Worker bedient
+`/api/*`, alles andere kommt aus dem gebauten `dist/`. Ein unbekannter Pfad
+fällt auf `index.html` zurück, damit ein tiefer Link wie
+`/g/<id>/salden` funktioniert.
 
 1. **D1-Datenbank anlegen**
 
@@ -30,8 +33,9 @@ Diese Schritte laufen einmal im Cloudflare-Dashboard bzw. lokal mit `wrangler`.
    npx wrangler d1 create quitt
    ```
 
-   Die zurückgegebene `database_id` in `wrangler.toml` unter
-   `[[d1_databases]]` eintragen (ersetzt `PLATZHALTER_D1_ID`).
+   Die zurückgegebene `database_id` in `wrangler.toml` eintragen — sie ersetzt
+   `PLATZHALTER_D1_ID`. Solange der Platzhalter drinsteht, bricht der Deploy
+   mit einer Fehlermeldung ab, statt eine kaputte Version live zu stellen.
 
 2. **KV-Namespace für die Wechselkurse anlegen**
 
@@ -39,8 +43,7 @@ Diese Schritte laufen einmal im Cloudflare-Dashboard bzw. lokal mit `wrangler`.
    npx wrangler kv namespace create FX
    ```
 
-   Die `id` in `wrangler.toml` unter `[[kv_namespaces]]` eintragen
-   (ersetzt `PLATZHALTER_KV_ID`).
+   Die `id` ersetzt `PLATZHALTER_KV_ID`.
 
 3. **Migrationen fahren**
 
@@ -49,18 +52,25 @@ Diese Schritte laufen einmal im Cloudflare-Dashboard bzw. lokal mit `wrangler`.
    npm run db:local      # gegen die lokale Kopie zum Entwickeln
    ```
 
-4. **Pages-Projekt mit dem Repo verbinden**
+4. **Worker mit dem Repo verbinden**
 
-   Im Dashboard unter *Workers & Pages → Create → Pages → Connect to Git*:
+   Im Dashboard unter *Workers & Pages → dein Worker → Settings → Build*:
 
-   | Feld              | Wert          |
-   | ----------------- | ------------- |
-   | Production branch | `main`        |
-   | Build command     | `npm run build` |
-   | Output directory  | `dist`        |
+   | Feld           | Wert                  |
+   | -------------- | --------------------- |
+   | Branch         | `main`                |
+   | Build command  | leer lassen           |
+   | Deploy command | `npx wrangler deploy` |
 
-   Danach unter *Settings → Functions* die Bindings setzen:
-   `DB` → die D1-Datenbank, `FX` → der KV-Namespace.
+   Der Build braucht kein eigenes Feld: `wrangler.toml` enthält
+   `[build] command = "npm run build"`, das läuft vor jedem Upload. Deshalb
+   scheiterte der erste Versuch — es gab kein `dist/`, weil nie gebaut wurde.
+
+   `npx wrangler versions upload` funktioniert auch, stellt die Version aber
+   nur bereit, statt sie live zu schalten. Für „Push auf `main` = live" ist
+   `npx wrangler deploy` das richtige Kommando.
+
+   D1 und KV kommen aus `wrangler.toml`, im Dashboard ist dafür nichts zu tun.
 
 Ab dann gilt: Push auf `main` = Deploy.
 
@@ -68,11 +78,15 @@ Ab dann gilt: Push auf `main` = Deploy.
 
 ```sh
 npm install
-npm run dev        # Vite auf :5173, /api wird auf :8788 weitergereicht
-npm run pages:dev  # Wrangler mit D1 + KV auf :8788 (in einem zweiten Terminal)
-npm test           # Rechenkern
+npm run dev         # Vite auf :5173, /api wird auf :8787 weitergereicht
+npm run worker:dev  # Worker mit D1 + KV auf :8787 (zweites Terminal)
+npm test            # Rechenkern
 npm run typecheck
 ```
+
+`npm run worker:dev` baut vorher automatisch, serviert also den letzten
+Build-Stand. Zum Arbeiten an der Oberfläche ist `npm run dev` schneller — es
+reicht `/api` an den Worker weiter.
 
 ## Was drin ist
 
@@ -102,7 +116,7 @@ src/components/  Papiersorten, Knöpfe, Personen, Sheets
 src/features/    Fachliche Bildschirme: beleg, fahrt, import, budget
 src/routes/      Seiten
 src/lib/         Intl-Formatierung, IDs, Farben
-functions/api/   Pages Functions
+worker/          Worker: index.ts serviert Assets, router.ts die API
 migrations/      Nummerierte SQL-Migrationen
 docs/            Verbindliches Design-Dokument
 ```

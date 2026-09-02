@@ -7,8 +7,8 @@ import {
   SaveReceiptInput,
   UpdateGroupInput,
   UpdateMemberInput,
-} from '../../src/shared/api'
-import type { Env, Handler, Route } from '../lib/http'
+} from '../src/shared/api'
+import type { Env, Handler, Route } from './lib/http'
 import {
   fehler,
   findeRoute,
@@ -21,7 +21,7 @@ import {
   neueId,
   neuerSpaceToken,
   nichtGefunden,
-} from '../lib/http'
+} from './lib/http'
 import {
   alleGehoerenZurGruppe,
   bumpRevision,
@@ -30,8 +30,8 @@ import {
   ladeGruppeRoh,
   ladeSnapshot,
   oeffentlicheGruppe,
-} from '../lib/db'
-import { holeKurse } from '../lib/fx'
+} from './lib/db'
+import { holeKurse } from './lib/fx'
 
 /**
  * The whole API. One catch-all handler with a small router, so the token
@@ -571,28 +571,32 @@ const ROUTES: Route[] = [
   { method: 'DELETE', pattern: 'groups/:id/budgets/:bid', handler: budgetLoeschen },
 ]
 
-export const onRequest: PagesFunction<Env> = async (context) => {
-  const url = new URL(context.request.url)
+/**
+ * Handles everything under /api. Called by the worker entry point, which
+ * hands anything else to the static assets.
+ */
+export async function behandleApi(request: Request, env: Env): Promise<Response> {
+  const url = new URL(request.url)
   const pfad = url.pathname.replace(/^\/api\/?/, '')
-  const treffer = findeRoute(ROUTES, context.request.method, pfad)
+  const treffer = findeRoute(ROUTES, request.method, pfad)
 
   if (!treffer) return nichtGefunden()
 
   const { route, params } = treffer
-  const ctx = { request: context.request, env: context.env, params, url }
+  const ctx = { request, env, params, url }
 
   if (route.oeffentlich) return route.handler(ctx)
 
   // Everything else needs a token that matches the group in the path.
-  const token = context.request.headers.get(TOKEN_HEADER)
+  const token = request.headers.get(TOKEN_HEADER)
   if (!token) return keinZugriff()
 
-  const gruppe = await ladeGruppePerToken(context.env, token)
+  const gruppe = await ladeGruppePerToken(env, token)
   if (!gruppe || gruppe.id !== params.id) return keinZugriff()
 
   // The optional PIN is a second lock on the same door, checked in constant time.
   if (gruppe.pin_hash) {
-    const pin = context.request.headers.get(PIN_HEADER)
+    const pin = request.headers.get(PIN_HEADER)
     if (!pin || !gleichSicher(await hashe(pin), gruppe.pin_hash)) {
       return fehler('PIN erforderlich', 401)
     }
