@@ -1,4 +1,7 @@
-name = "quitt"
+# Must match the Worker in the Cloudflare dashboard. The project there is
+# called "e" after the repository; a mismatch makes every build warn and
+# Cloudflare offer a pull request to fix it.
+name = "e"
 main = "worker/index.ts"
 compatibility_date = "2025-09-01"
 

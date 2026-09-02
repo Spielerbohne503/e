@@ -27,40 +27,56 @@ quitt läuft als **Worker mit Static Assets**: ein einziger Worker bedient
 fällt auf `index.html` zurück, damit ein tiefer Link wie
 `/g/<id>/salden` funktioniert.
 
-1. **D1-Datenbank anlegen**
+1. **D1 und KV anlegen** — in einem Schritt:
 
    ```sh
-   npx wrangler d1 create quitt
+   npx wrangler login       # einmalig, falls noch nicht angemeldet
+   npm run setup:cloudflare
    ```
 
-   Die zurückgegebene `database_id` in `wrangler.toml` eintragen — sie ersetzt
-   `PLATZHALTER_D1_ID`. Solange der Platzhalter drinsteht, bricht der Deploy
-   mit einer Fehlermeldung ab, statt eine kaputte Version live zu stellen.
+   Das Skript legt die D1-Datenbank `quitt` und den KV-Namespace `FX` an,
+   falls es sie noch nicht gibt, und trägt beide IDs direkt in `wrangler.toml`
+   ein. Es lässt sich gefahrlos mehrfach ausführen — vorhandene Ressourcen
+   werden wiederverwendet, nicht verdoppelt.
 
-2. **KV-Namespace für die Wechselkurse anlegen**
+   Von Hand geht es auch:
 
    ```sh
-   npx wrangler kv namespace create FX
+   npx wrangler d1 create quitt          # database_id → wrangler.toml
+   npx wrangler kv namespace create FX   # id → wrangler.toml
    ```
 
-   Die `id` ersetzt `PLATZHALTER_KV_ID`.
+   Solange die Platzhalter drinstehen, bricht der Deploy mit
+   `KV namespace 'PLATZHALTER_KV_ID' is not valid` ab — gewollt, damit keine
+   Version live geht, die zur Laufzeit an der Datenbank scheitert.
 
-3. **Migrationen fahren**
+2. **Migration fahren**
 
    ```sh
    npm run db:remote     # gegen die echte D1
    npm run db:local      # gegen die lokale Kopie zum Entwickeln
    ```
 
+3. **Geänderte `wrangler.toml` committen und pushen.**
+
 4. **Worker mit dem Repo verbinden**
 
    Im Dashboard unter *Workers & Pages → dein Worker → Settings → Build*:
 
-   | Feld           | Wert                  |
-   | -------------- | --------------------- |
-   | Branch         | `main`                |
-   | Build command  | leer lassen           |
-   | Deploy command | `npx wrangler deploy` |
+   | Feld              | Wert                             |
+   | ----------------- | -------------------------------- |
+   | Production branch | `main`                           |
+   | Build command     | leer lassen                      |
+   | Deploy command    | `npx wrangler deploy`            |
+   | Version command   | `npx wrangler versions upload`   |
+
+   Der Deploy command läuft auf dem Production branch, der Version command auf
+   allen anderen. Ein Build von einem Feature-Branch stellt also eine Version
+   bereit, ohne sie live zu schalten.
+
+   Der Worker heißt im Dashboard `e`, und genau das muss in `wrangler.toml`
+   unter `name` stehen. Weicht es ab, warnt jeder Build und Cloudflare bietet
+   an, den Namen per Pull Request zu korrigieren.
 
    Der Build braucht kein eigenes Feld: `wrangler.toml` enthält
    `[build] command = "npm run build"`, das läuft vor jedem Upload. Deshalb
