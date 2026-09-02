@@ -108,7 +108,9 @@ export function ZuordnungsSheet({
         </Knopf>
       }
     >
-      <div className="flex items-baseline justify-between mb-3">
+      {/* At 360px the four modes need their own line rather than squeezing
+          in beside the amount. */}
+      <div className="flex flex-col gap-3 mb-3">
         <Betrag cents={position.totalCents} currency={currency} className="text-[22px]" />
         <Umschalter
           label="Aufteilung"
