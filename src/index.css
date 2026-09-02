@@ -1,0 +1,532 @@
+@import "tailwindcss";
+@import "./fonts.css";
+
+/* dark: works for both the system preference and an explicit [data-theme]. */
+@custom-variant dark {
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+  &:where(:root[data-theme="dark"] *) {
+    @slot;
+  }
+}
+
+
+/* ------------------------------------------------------------------ *
+ * Design tokens — taken 1:1 from docs/design-vorschlag.html.
+ * Semantic colors live on :root so dark mode can swap them; the
+ * @theme inline block below forwards them to Tailwind as var() refs.
+ * ------------------------------------------------------------------ */
+
+:root {
+  --papier: #f2f4ef;
+  --karte: #ffffff;
+  --tinte: #17211e;
+  --tinte-2: #5a6b66;
+
+  --mint: #00b37e;
+  --mint-weich: #dcf5ec;
+  --koralle: #ff6b4a;
+  --koralle-weich: #ffe6df;
+  --bon: #ffc947;
+  --bon-weich: #fff3d4;
+  --nacht: #0e3b33;
+  --lavendel: #7c5cff;
+  --lavendel-weich: #eae4ff;
+
+  /* Real errors only — never used for a debt. */
+  --fehler: #d92d20;
+  --fehler-weich: #fee4e2;
+
+  /* Paper fibre + rules, tuned per theme. */
+  --faser: rgba(14, 59, 51, 0.03);
+  --strich: rgba(14, 59, 51, 0.15);
+  --strich-stark: rgba(14, 59, 51, 0.18);
+  --punkt-1: rgba(14, 59, 51, 0.05);
+  --punkt-2: rgba(14, 59, 51, 0.032);
+  --karteikarte-grund: #fffdf8;
+  --karteikarte-linie: rgba(72, 118, 186, 0.18);
+  --karteikarte-kopf: rgba(206, 84, 72, 0.55);
+  --hand-farbe: #2c6b58;
+
+  --r-klein: 10px;
+  --r-karte: 20px;
+  --r-gross: 28px;
+  --r-pille: 999px;
+
+  --schatten-ruhe: 0 2px 0 rgba(14, 59, 51, 0.06), 0 8px 24px rgba(14, 59, 51, 0.07);
+  --schatten-hoch: 0 4px 0 rgba(14, 59, 51, 0.08), 0 18px 40px rgba(14, 59, 51, 0.12);
+
+  --dauer-tipp: 120ms;
+  --dauer-standard: 220ms;
+  --dauer-sheet: 320ms;
+  --dauer-feier: 700ms;
+  --ease-weich: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-zack: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  color-scheme: light;
+}
+
+/* Dark mode (P6). Mint and bon stay, koralle brightens, per the design doc. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papier: #151a18;
+    --karte: #1e2523;
+    --tinte: #e7ede9;
+    --tinte-2: #94a5a0;
+    --koralle: #ff8468;
+    --mint-weich: #12332b;
+    --koralle-weich: #3a2018;
+    --bon-weich: #38301a;
+    --lavendel-weich: #262040;
+    --nacht: #0a2c26;
+    --fehler: #f97066;
+    --fehler-weich: #3a1a17;
+    --faser: rgba(231, 237, 233, 0.028);
+    --strich: rgba(231, 237, 233, 0.16);
+    --strich-stark: rgba(231, 237, 233, 0.2);
+    --punkt-1: rgba(231, 237, 233, 0.045);
+    --punkt-2: rgba(231, 237, 233, 0.03);
+    --karteikarte-grund: #232b28;
+    --karteikarte-linie: rgba(124, 160, 216, 0.2);
+    --karteikarte-kopf: rgba(226, 118, 106, 0.6);
+    --hand-farbe: #7fd8bc;
+    --schatten-ruhe: 0 2px 0 rgba(0, 0, 0, 0.25), 0 8px 24px rgba(0, 0, 0, 0.35);
+    --schatten-hoch: 0 4px 0 rgba(0, 0, 0, 0.3), 0 18px 40px rgba(0, 0, 0, 0.45);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --papier: #151a18;
+  --karte: #1e2523;
+  --tinte: #e7ede9;
+  --tinte-2: #94a5a0;
+  --koralle: #ff8468;
+  --mint-weich: #12332b;
+  --koralle-weich: #3a2018;
+  --bon-weich: #38301a;
+  --lavendel-weich: #262040;
+  --nacht: #0a2c26;
+  --fehler: #f97066;
+  --fehler-weich: #3a1a17;
+  --faser: rgba(231, 237, 233, 0.028);
+  --strich: rgba(231, 237, 233, 0.16);
+  --strich-stark: rgba(231, 237, 233, 0.2);
+  --punkt-1: rgba(231, 237, 233, 0.045);
+  --punkt-2: rgba(231, 237, 233, 0.03);
+  --karteikarte-grund: #232b28;
+  --karteikarte-linie: rgba(124, 160, 216, 0.2);
+  --karteikarte-kopf: rgba(226, 118, 106, 0.6);
+    --hand-farbe: #7fd8bc;
+  --schatten-ruhe: 0 2px 0 rgba(0, 0, 0, 0.25), 0 8px 24px rgba(0, 0, 0, 0.35);
+  --schatten-hoch: 0 4px 0 rgba(0, 0, 0, 0.3), 0 18px 40px rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-papier: var(--papier);
+  --color-karte: var(--karte);
+  --color-tinte: var(--tinte);
+  --color-tinte-2: var(--tinte-2);
+  --color-mint: var(--mint);
+  --color-mint-weich: var(--mint-weich);
+  --color-koralle: var(--koralle);
+  --color-koralle-weich: var(--koralle-weich);
+  --color-bon: var(--bon);
+  --color-bon-weich: var(--bon-weich);
+  --color-nacht: var(--nacht);
+  --color-lavendel: var(--lavendel);
+  --color-lavendel-weich: var(--lavendel-weich);
+  --color-fehler: var(--fehler);
+  --color-fehler-weich: var(--fehler-weich);
+  --color-strich: var(--strich);
+
+  --radius-klein: var(--r-klein);
+  --radius-karte: var(--r-karte);
+  --radius-gross: var(--r-gross);
+  --radius-pille: var(--r-pille);
+
+  --shadow-ruhe: var(--schatten-ruhe);
+  --shadow-hoch: var(--schatten-hoch);
+
+  --font-fredoka: "Fredoka", system-ui, sans-serif;
+  --font-manrope: "Manrope", system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, monospace;
+  --font-caveat: "Caveat", cursive;
+
+  --ease-weich: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-zack: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ------------------------------------------------------------------ *
+ * Base
+ * ------------------------------------------------------------------ */
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background-color: var(--papier);
+    background-image:
+      radial-gradient(var(--punkt-1) 1px, transparent 1px),
+      radial-gradient(var(--punkt-2) 1px, transparent 1px);
+    background-size: 7px 7px, 13px 13px;
+    background-position: 0 0, 4px 6px;
+    background-attachment: fixed;
+    color: var(--tinte);
+    font-family: var(--font-manrope);
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-fredoka);
+    font-weight: 600;
+    line-height: 1.15;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+
+  /* Focus ring is lavender everywhere, per the design doc. */
+  :focus-visible {
+    outline: 3px solid var(--lavendel);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* Amounts never jump between columns. */
+  .tabular,
+  input[inputmode="decimal"],
+  input[inputmode="numeric"] {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Paper stock — three kinds, never mixed:
+ * bon (line items) · zettel (handwritten notes) · karteikarte (a receipt)
+ * All CSS gradients and clip-path. No image files.
+ * ------------------------------------------------------------------ */
+
+@utility papier-faser {
+  position: relative;
+}
+@utility papier-faser {
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: repeating-linear-gradient(92deg, var(--faser) 0 1px, transparent 1px 4px);
+  }
+}
+
+@utility abriss {
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -11px;
+    height: 12px;
+    background:
+      linear-gradient(135deg, var(--karte) 25%, transparent 25%) -11px 0,
+      linear-gradient(225deg, var(--karte) 25%, transparent 25%) -11px 0;
+    background-size: 22px 22px;
+  }
+}
+
+@utility liniert {
+  background-image: repeating-linear-gradient(transparent 0 27px, var(--strich) 27px 28px);
+  background-position: 0 20px;
+}
+
+@utility kariert {
+  background-image:
+    linear-gradient(var(--strich) 1px, transparent 1px),
+    linear-gradient(90deg, var(--strich) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+@utility kipp-l {
+  transform: rotate(-0.9deg);
+}
+@utility kipp-r {
+  transform: rotate(0.8deg);
+}
+
+@utility trennstrich {
+  border-bottom: 1px dashed var(--strich);
+}
+
+/* Adhesive tape across the top edge of a card. */
+@utility band {
+  position: absolute;
+  width: 104px;
+  height: 27px;
+  top: -13px;
+  left: 50%;
+  z-index: 2;
+  background: rgba(255, 228, 132, 0.6);
+  box-shadow: 0 1px 3px rgba(14, 59, 51, 0.14);
+  transform: translateX(-50%) rotate(-2.4deg);
+  clip-path: polygon(4% 0, 96% 5%, 100% 95%, 1% 100%);
+}
+
+/* ------------------------------------------------------------------ *
+ * Motion — durations and easings copied from the design doc.
+ * Every animation answers an action; none run on scroll.
+ * ------------------------------------------------------------------ */
+
+@keyframes stempeln {
+  0% {
+    transform: rotate(-24deg) scale(2.4);
+    opacity: 0;
+  }
+  55% {
+    transform: rotate(-4deg) scale(0.92);
+    opacity: 1;
+  }
+  75% {
+    transform: rotate(-9deg) scale(1.06);
+  }
+  100% {
+    transform: rotate(-7deg) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes hopp {
+  0% {
+    transform: scale(1) rotate(0);
+  }
+  35% {
+    transform: scale(1.22) rotate(-8deg);
+  }
+  65% {
+    transform: scale(0.95) rotate(5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+  }
+}
+
+@keyframes einzug {
+  0% {
+    transform: translateY(-180px) rotate(0);
+    opacity: 0;
+  }
+  70% {
+    transform: translateY(4px) rotate(-3deg);
+    opacity: 1;
+  }
+  85% {
+    transform: translateY(-4px) rotate(2deg);
+  }
+  100% {
+    transform: translateY(0) rotate(-1.5deg);
+    opacity: 1;
+  }
+}
+
+@keyframes flugx {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(var(--flug-dx, 180px));
+    opacity: 1;
+  }
+}
+
+@keyframes flugy {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-52px);
+  }
+  100% {
+    transform: translateY(4px);
+    opacity: 0;
+  }
+}
+
+@keyframes muenzdreh {
+  to {
+    rotate: 540deg;
+  }
+}
+
+@keyframes zittern {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-5px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+@keyframes zeichnen {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes knuellen {
+  0% {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+  40% {
+    transform: scale(0.78) rotate(9deg) skewX(-8deg);
+  }
+  100% {
+    transform: scale(0.12) rotate(-26deg) skewX(14deg);
+    opacity: 0;
+  }
+}
+
+@keyframes fliegen {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) rotate(var(--dr));
+  }
+}
+
+@keyframes blinzeln {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.08);
+  }
+}
+
+@keyframes winken {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(-26deg);
+  }
+}
+
+@keyframes hoch {
+  from {
+    transform: translateY(110%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes schleier {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes eurodreh {
+  0% {
+    rotate: 0;
+    scale: 1;
+  }
+  60% {
+    rotate: 380deg;
+    scale: 1.25;
+  }
+  100% {
+    rotate: 360deg;
+    scale: 1;
+  }
+}
+
+@keyframes kleben {
+  0% {
+    transform: translateY(-90px) rotate(-15deg) scale(1.07);
+    opacity: 0;
+  }
+  55% {
+    transform: translateY(5px) rotate(2deg) scale(1);
+    opacity: 1;
+  }
+  78% {
+    transform: translateY(-4px) rotate(-4.5deg);
+  }
+  100% {
+    transform: translateY(0) rotate(-2.2deg);
+    opacity: 1;
+  }
+}
+
+@keyframes schimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+/* State changes are instant when the reader asked for less motion.
+   Nothing is conveyed by movement alone, so no information is lost. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

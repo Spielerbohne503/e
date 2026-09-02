@@ -1,0 +1,17 @@
+name = "quitt"
+compatibility_date = "2024-12-30"
+pages_build_output_dir = "dist"
+
+# D1 — created once in the Cloudflare dashboard or via:
+#   wrangler d1 create quitt
+# then paste the returned database_id here.
+[[d1_databases]]
+binding = "DB"
+database_name = "quitt"
+database_id = "PLATZHALTER_D1_ID"
+
+# KV — caches the daily FX rates. Created via:
+#   wrangler kv namespace create FX
+[[kv_namespaces]]
+binding = "FX"
+id = "PLATZHALTER_KV_ID"
