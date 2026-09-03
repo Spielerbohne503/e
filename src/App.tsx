@@ -9,12 +9,16 @@ import { Salden } from '@/routes/Salden'
 import { Einstellungen } from '@/routes/Einstellungen'
 import { Auswertung } from '@/routes/Auswertung'
 import { wendeThemeAn } from '@/lib/speicher'
+import { useNachObenBeiWechsel } from '@/lib/seitenwechsel'
 
 export function App() {
   // The stored theme choice wins over the system setting, both directions.
   useEffect(() => {
     wendeThemeAn()
   }, [])
+
+  // A new screen starts at the top, never halfway down the previous list.
+  useNachObenBeiWechsel()
 
   return (
     <Routes>

@@ -1,5 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { useSanfteNavigation } from '@/lib/seitenwechsel'
 
 type Art = 'primaer' | 'zweit' | 'geist' | 'gefahr'
 
@@ -48,13 +48,22 @@ export function KnopfLink({
   className?: string
   children: ReactNode
 }) {
+  const navigiere = useSanfteNavigation()
+
+  // An anchor, so middle-click and "open in new tab" keep working, but the
+  // plain click goes through the view transition.
   return (
-    <Link
-      to={to}
+    <a
+      href={to}
+      onClick={(e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return
+        e.preventDefault()
+        navigiere(to)
+      }}
       className={[BASIS, ARTEN[art], breit ? 'w-full' : '', className].filter(Boolean).join(' ')}
     >
       {children}
-    </Link>
+    </a>
   )
 }
 

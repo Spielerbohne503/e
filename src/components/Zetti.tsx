@@ -71,7 +71,31 @@ export function LeerZustand({
 }) {
   return (
     <div className="flex flex-col items-center text-center py-10 px-4 gap-4">
-      {zettiAn && <Zetti groesse={96} />}
+      {zettiAn && (
+        <div className="relative">
+          {/* A blank pad behind him, so the empty state looks like paper
+              waiting to be filled rather than a hole in the page. */}
+          <span
+            aria-hidden="true"
+            className="absolute -z-10 left-1/2 top-4 -translate-x-1/2 w-[132px] h-[118px] rounded-[3px]"
+            style={{
+              background: 'var(--karte)',
+              boxShadow: 'var(--schatten-ruhe)',
+              transform: 'translateX(-50%) rotate(-5deg)',
+            }}
+          />
+          <span
+            aria-hidden="true"
+            className="absolute -z-10 left-1/2 top-2 -translate-x-1/2 w-[132px] h-[118px] rounded-[3px]"
+            style={{
+              background: 'var(--karte)',
+              boxShadow: 'var(--schatten-ruhe)',
+              transform: 'translateX(-50%) rotate(2.5deg)',
+            }}
+          />
+          <Zetti groesse={96} />
+        </div>
+      )}
       <p className="text-tinte-2 max-w-[32ch]">{text}</p>
       {children}
     </div>

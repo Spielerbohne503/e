@@ -13,6 +13,7 @@ import { auswerten, findeDuplikate, findeWiederkehrende } from '@/core/statistik
 import { belegeAlsCsv, dateiname, ladeHerunter, saldenAlsCsv } from '@/lib/export'
 import { formatDate, formatMoney } from '@/lib/format'
 import { CATEGORY_LABELS, type Category } from '@/shared/api'
+import { KaroFlaeche, KategorieStempel, Perforation } from '@/components/PapierGrafik'
 
 type Sicht = 'person' | 'kategorie' | 'monat'
 
@@ -49,15 +50,25 @@ export function Auswertung() {
 
   return (
     <Rahmen titel="Auswertung" zurueck={`/g/${id}`}>
-      <Papier className="p-5 mt-3">
-        <div className="flex items-baseline justify-between mb-1">
-          <h2 className="text-[19px] font-medium">Insgesamt</h2>
-          <span className="text-sm text-tinte-2">
-            {auswertung.belegAnzahl} {auswertung.belegAnzahl === 1 ? 'Beleg' : 'Belege'}
-          </span>
-        </div>
-        {/* The one place an amount moves: a single large total. */}
-        <Zahlenrolle cents={auswertung.gesamtCents} currency={waehrung} />
+      <Papier className="relative mt-3 overflow-hidden">
+        <Perforation />
+        <KaroFlaeche className="px-5 pt-6 pb-3">
+          <div className="flex items-baseline justify-between mb-1">
+            <h2 className="text-[19px] font-medium">Insgesamt</h2>
+            <span className="text-sm text-tinte-2">
+              {auswertung.belegAnzahl} {auswertung.belegAnzahl === 1 ? 'Beleg' : 'Belege'}
+            </span>
+          </div>
+          {/* The one place an amount moves: a single large total. It sits in
+              its own boxed field, the way a result is boxed on a worksheet —
+              texture never runs behind a figure. */}
+          <div
+            className="inline-flex items-baseline bg-karte rounded-klein px-3 py-1.5 mt-1"
+            style={{ boxShadow: 'inset 0 0 0 1px var(--strich)' }}
+          >
+            <Zahlenrolle cents={auswertung.gesamtCents} currency={waehrung} />
+          </div>
+        </KaroFlaeche>
       </Papier>
 
       <Papier className="p-5 mt-3">
@@ -81,7 +92,7 @@ export function Auswertung() {
                 const verbraucht = auswertung.proPerson.get(m.id) ?? 0
                 const gezahlt = auswertung.gezahltProPerson.get(m.id) ?? 0
                 return (
-                  <li key={m.id} className="py-3 trennstrich last:border-b-0">
+                  <li key={m.id} className="py-3 trennstrich last:border-b-0 entfaltet">
                     <div className="flex items-center gap-3">
                       <PersonChip person={m} />
                       <span className="flex-1 font-bold truncate">{m.display_name}</span>
@@ -102,8 +113,9 @@ export function Auswertung() {
             {[...auswertung.proKategorie.entries()]
               .sort((a, b) => b[1] - a[1])
               .map(([kategorie, cents]) => (
-                <li key={kategorie} className="py-3 trennstrich last:border-b-0">
+                <li key={kategorie} className="py-3 trennstrich last:border-b-0 entfaltet">
                   <div className="flex items-center gap-3">
+                    <KategorieStempel kategorie={kategorie} className="text-tinte-2 shrink-0" />
                     <span className="flex-1 font-bold truncate">
                       {CATEGORY_LABELS[kategorie as Category] ?? kategorie}
                     </span>
@@ -120,7 +132,7 @@ export function Auswertung() {
             {[...auswertung.proMonat.entries()]
               .sort((a, b) => b[0].localeCompare(a[0]))
               .map(([monat, cents]) => (
-                <li key={monat} className="py-3 trennstrich last:border-b-0">
+                <li key={monat} className="py-3 trennstrich last:border-b-0 entfaltet">
                   <div className="flex items-center gap-3">
                     <span className="flex-1 font-bold font-mono tabular">{monatName(monat)}</span>
                     <Betrag cents={cents} currency={waehrung} />

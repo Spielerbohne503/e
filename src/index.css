@@ -609,3 +609,115 @@
     content: '';
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * More motion. Every one of these answers an action — none run on scroll,
+ * none loop, and all of them collapse under prefers-reduced-motion via the
+ * global rule at the top of this file.
+ * ------------------------------------------------------------------ */
+
+/* A card presses down under the finger, like paper on a desk. */
+@utility druck {
+  transition:
+    transform var(--dauer-tipp) var(--ease-weich),
+    box-shadow var(--dauer-tipp) var(--ease-weich);
+  &:active {
+    transform: scale(0.985) translateY(1px);
+    box-shadow: 0 1px 0 rgba(14, 59, 51, 0.06), 0 3px 10px rgba(14, 59, 51, 0.06);
+  }
+}
+
+/* A new line unfolds downwards, as if the paper were being pulled out. */
+@keyframes entfalten {
+  0% {
+    opacity: 0;
+    transform: scaleY(0.6) translateY(-6px);
+    transform-origin: top;
+  }
+  100% {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+    transform-origin: top;
+  }
+}
+
+/* A stamp being pressed on: quick, with a small overshoot. */
+@keyframes aufdruecken {
+  0% {
+    transform: rotate(-4deg) scale(1.6);
+    opacity: 0;
+  }
+  60% {
+    transform: rotate(-4deg) scale(0.94);
+    opacity: 0.82;
+  }
+  100% {
+    transform: rotate(-4deg) scale(1);
+    opacity: 0.82;
+  }
+}
+
+/* A sheet sliding out of the pad, for a card appearing in a list. */
+@keyframes ausgabe {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Tearing a sheet off: it lifts, tilts and drops away. */
+@keyframes abreissen {
+  0% {
+    transform: translateY(0) rotate(0);
+    opacity: 1;
+  }
+  35% {
+    transform: translateY(-6px) rotate(-1.5deg);
+  }
+  100% {
+    transform: translateY(40px) rotate(4deg);
+    opacity: 0;
+  }
+}
+
+@utility entfaltet {
+  animation: entfalten var(--dauer-standard) var(--ease-weich) both;
+}
+@utility aufgedrueckt {
+  animation: aufdruecken 420ms var(--ease-zack) both;
+}
+@utility ausgegeben {
+  animation: ausgabe var(--dauer-standard) var(--ease-weich) both;
+}
+
+/* ------------------------------------------------------------------ *
+ * View transitions between screens. The design doc names these as the
+ * intended mechanism for layout changes, in place of an animation library.
+ * ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: seite-weg var(--dauer-standard) var(--ease-weich) both;
+  }
+  ::view-transition-new(root) {
+    animation: seite-her var(--dauer-standard) var(--ease-weich) both;
+  }
+}
+
+@keyframes seite-weg {
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes seite-her {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}

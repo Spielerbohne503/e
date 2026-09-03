@@ -7,6 +7,8 @@ import { Betrag, Saldo } from '@/components/Betrag'
 import { PersonChip } from '@/components/Person'
 import { QuittStempel } from '@/components/Stempel'
 import { Zetti } from '@/components/Zetti'
+import { Gummistempel, Rollenkante, Wasserzeichen } from '@/components/PapierGrafik'
+import { Marke } from '@/components/Marke'
 import { Skelett } from '@/components/Skelett'
 import { useAbrechnung, useAusgleichAnlegen, useAusgleichLoeschen, useSnapshot } from '@/api/hooks'
 import { formatDate, formatMoney } from '@/lib/format'
@@ -93,7 +95,11 @@ export function Salden() {
                 const schluessel = `${z.fromId}-${z.toId}`
 
                 return (
-                  <li key={`${schluessel}-${i}`} className="py-3 trennstrich last:border-b-0">
+                  <li
+                    key={`${schluessel}-${i}`}
+                    className="py-3 trennstrich last:border-b-0 entfaltet"
+                    style={{ animationDelay: `${Math.min(i, 5) * 50}ms` }}
+                  >
                     <div className="flex items-center gap-2 relative">
                       <PersonChip person={von} />
                       <MuenzFlug
@@ -151,9 +157,13 @@ export function Salden() {
                     <Betrag cents={s.amount_cents} currency={group.base_currency} />
                   </div>
                   <div className="flex items-center gap-3 mt-1">
-                    <span className="flex-1 font-mono tabular text-sm text-tinte-2">
+                    <span className="font-mono tabular text-sm text-tinte-2">
                       {formatDate(new Date(s.settled_at).toISOString().slice(0, 10))}
                     </span>
+                    <span className="aufgedrueckt">
+                      <Gummistempel text="bezahlt" />
+                    </span>
+                    <span className="flex-1" />
                     <Knopf art="geist" onClick={() => ausgleichZurueck.mutate(s.id)} className="!px-2">
                       Zurücknehmen
                     </Knopf>
@@ -178,11 +188,22 @@ function QuittMoment({ zettiAn }: { zettiAn: boolean }) {
   })
 
   return (
-    <Papier className="p-6 mt-3 flex flex-col items-center text-center">
-      <QuittStempel spielen={spielen} />
-      <p className="text-tinte-2 mt-2">Keine offenen Posten mehr.</p>
-      {zettiAn && <Zetti groesse={88} className="mt-4" />}
-    </Papier>
+    <>
+      <Papier className="relative p-6 mt-3 flex flex-col items-center text-center overflow-hidden">
+        {/* The mark, barely there. Never behind an amount — this card has none. */}
+        <Wasserzeichen>
+          <Marke groesse={280} />
+        </Wasserzeichen>
+
+        <div className="relative">
+          <QuittStempel spielen={spielen} />
+          <p className="text-tinte-2 mt-2">Keine offenen Posten mehr.</p>
+          {zettiAn && <Zetti groesse={88} className="mt-4" />}
+        </div>
+      </Papier>
+      {/* The receipt carries on past the fold. */}
+      <Rollenkante className="-mt-px" />
+    </>
   )
 }
 

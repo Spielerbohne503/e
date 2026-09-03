@@ -10,6 +10,25 @@ import { BudgetLeiste } from '@/features/budget/BudgetLeiste'
 import { useAbrechnung, useSnapshot } from '@/api/hooks'
 import { formatDate } from '@/lib/format'
 import { VerbindungsHinweis } from '@/components/VerbindungsHinweis'
+import { Eselsohr, KategorieStempel, Klammer } from '@/components/PapierGrafik'
+
+/** The category carrying the most money on a receipt, for its stamp. */
+function hauptKategorie(receipt: { items: Array<{ category: string | null; total_cents: number }> }): string | null {
+  const summen = new Map<string, number>()
+  for (const item of receipt.items) {
+    if (!item.category) continue
+    summen.set(item.category, (summen.get(item.category) ?? 0) + Math.abs(item.total_cents))
+  }
+  let beste: string | null = null
+  let hoechste = 0
+  for (const [kategorie, summe] of summen) {
+    if (summe > hoechste) {
+      hoechste = summe
+      beste = kategorie
+    }
+  }
+  return beste
+}
 
 /**
  * The group's home screen: what is open, who owes whom, and the receipts
@@ -131,17 +150,30 @@ export function GruppeStart() {
               const offen = r.items.filter((it) => it.kind === 'item' && it.splits.length === 0).length
 
               return (
-                <li key={r.id}>
-                  <Link to={`/g/${id}/beleg/${r.id}`} className="block">
-                    <Karteikarte kipp={i === 0 ? 'r' : undefined}>
-                      <div className="flex items-start gap-3">
+                <li
+                  key={r.id}
+                  className="ausgegeben"
+                  // Cards come out of the pad one after another, not all at
+                  // once. Capped so a long list does not crawl in.
+                  style={{ animationDelay: `${Math.min(i, 6) * 45}ms` }}
+                >
+                  <Link to={`/g/${id}/beleg/${r.id}`} className="block druck">
+                    <Karteikarte kipp={i === 0 ? 'r' : undefined} className="overflow-hidden">
+                        {/* Only the newest receipt gets the clip — it is the one
+                          sitting on top of the pile. */}
+                      {i === 0 && <Klammer />}
+
+                      <div className="flex items-start gap-3 pt-1">
                         <div className="flex-1 min-w-0">
                           <span className="font-fredoka text-[18px] font-medium block truncate">
                             {r.merchant || (r.source === 'travel' ? 'Fahrt' : 'Beleg')}
                           </span>
-                          <div className="font-mono tabular text-sm text-tinte-2 mt-1">
-                            {formatDate(r.date)}
-                            {r.items.length > 0 && ` · ${r.items.length} ${r.items.length === 1 ? 'Position' : 'Positionen'}`}
+                          <div className="flex items-center gap-1.5 mt-1 text-tinte-2">
+                            <KategorieStempel kategorie={hauptKategorie(r)} groesse={17} />
+                            <span className="font-mono tabular text-sm">
+                              {formatDate(r.date)}
+                              {r.items.length > 0 && ` · ${r.items.length} ${r.items.length === 1 ? 'Position' : 'Positionen'}`}
+                            </span>
                           </div>
                         </div>
                         <div className="text-right shrink-0">
@@ -160,6 +192,8 @@ export function GruppeStart() {
                           {offen === 1 ? 'Ein Posten offen' : `${offen} Posten offen`}
                         </p>
                       )}
+
+                      <Eselsohr />
                     </Karteikarte>
                   </Link>
                 </li>

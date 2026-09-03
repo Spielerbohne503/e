@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Rahmen, SchwebeAktion } from '@/components/Rahmen'
 import { Karteikarte, Papier } from '@/components/Papier'
+import { Eselsohr, Klammer } from '@/components/PapierGrafik'
 import { Knopf, KnopfLink } from '@/components/Knopf'
 import { LeerZustand } from '@/components/Zetti'
 import { Skelett } from '@/components/Skelett'
@@ -93,15 +94,24 @@ export function GruppenListe() {
         <>
           <ul className="grid gap-3 pt-3">
             {gruppen.map((g, i) => (
-              <li key={g.id}>
-                <Link to={`/g/${g.id}`} className="block">
+              <li
+                key={g.id}
+                className="ausgegeben"
+                style={{ animationDelay: `${Math.min(i, 6) * 45}ms` }}
+              >
+                <Link to={`/g/${g.id}`} className="block druck">
                   {/* At most three tilted elements per screen, so only the
                       first two cards lean. */}
-                  <Karteikarte kipp={i === 0 ? 'r' : i === 1 ? 'l' : undefined}>
-                    <span className="font-fredoka text-[18px] font-medium">{g.name}</span>
+                  <Karteikarte
+                    kipp={i === 0 ? 'r' : i === 1 ? 'l' : undefined}
+                    className="overflow-hidden"
+                  >
+                    {i === 0 && <Klammer />}
+                    <span className="font-fredoka text-[18px] font-medium block pt-1">{g.name}</span>
                     <div className="font-mono tabular text-sm text-tinte-2 mt-1">
                       {g.base_currency} · zuletzt {formatDate(new Date(g.zuletztGeoeffnet).toISOString().slice(0, 10))}
                     </div>
+                    <Eselsohr />
                   </Karteikarte>
                 </Link>
               </li>
