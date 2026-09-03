@@ -1,11 +1,7 @@
-*.iml
-.gradle
-/local.properties
-/.idea/
+node_modules/
+dist/
+.wrangler/
+.dev.vars
+*.local
 .DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
-local.properties
-app/build/
+.vscode/

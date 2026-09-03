@@ -1,0 +1,36 @@
+# Must match the Worker in the Cloudflare dashboard. The project there is
+# called "e" after the repository; a mismatch makes every build warn and
+# Cloudflare offer a pull request to fix it.
+name = "e"
+main = "worker/index.ts"
+compatibility_date = "2025-09-01"
+
+# The built SPA. Anything outside /api is served straight from here, and an
+# unknown path falls back to index.html so React Router can handle deep links.
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+# Cloudflare's build step runs this before uploading, so the deploy does not
+# depend on a build command being configured in the dashboard.
+[build]
+command = "npm run build"
+
+# --- RESSOURCEN ---------------------------------------------------------
+# Eingetragen von `npm run setup:cloudflare`. Bis dahin deployt der Worker
+# ohne Datenbank und zeigt statt der App einen Einrichtungs-Hinweis — besser
+# als ein roter Build, der nichts erklärt.
+#
+# Ein Platzhalter statt einer echten ID lässt den Deploy fehlschlagen, also
+# stehen die Blöcke bis zur Einrichtung auskommentiert hier.
+#
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "quitt"
+# database_id = "..."
+#
+# [[kv_namespaces]]
+# binding = "FX"
+# id = "..."
+# --- ENDE RESSOURCEN ----------------------------------------------------

@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>quitt – Design-Vorschlag</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Manrope:wght@400;500;700&family=DM+Mono:wght@400;500&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --papier:#F2F4EF;
+  --karte:#FFFFFF;
+  --tinte:#17211E;
+  --tinte-2:#5A6B66;
+  --mint:#00B37E;
+  --mint-weich:#DCF5EC;
+  --koralle:#FF6B4A;
+  --koralle-weich:#FFE6DF;
+  --bon:#FFC947;
+  --bon-weich:#FFF3D4;
+  --nacht:#0E3B33;
+  --lavendel:#7C5CFF;
+  --lavendel-weich:#EAE4FF;
+
+  --r-klein:10px;
+  --r-karte:20px;
+  --r-gross:28px;
+  --r-pille:999px;
+
+  --schatten-ruhe:0 2px 0 rgba(14,59,51,.06), 0 8px 24px rgba(14,59,51,.07);
+  --schatten-hoch:0 4px 0 rgba(14,59,51,.08), 0 18px 40px rgba(14,59,51,.12);
+
+  --dauer-tipp:120ms;
+  --dauer-standard:220ms;
+  --dauer-sheet:320ms;
+  --dauer-feier:700ms;
+  --ease-weich:cubic-bezier(.22,.61,.36,1);
+  --ease-zack:cubic-bezier(.34,1.56,.64,1);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background-color:var(--papier);
+  background-image:
+    radial-gradient(rgba(14,59,51,.05) 1px, transparent 1px),
+    radial-gradient(rgba(14,59,51,.032) 1px, transparent 1px);
+  background-size:7px 7px, 13px 13px;
+  background-position:0 0, 4px 6px;
+  color:var(--tinte);
+  font-family:"Manrope",system-ui,sans-serif;
+  font-size:16px;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+.rolle{max-width:820px;margin:0 auto;padding:0 20px 96px}
+
+h1,h2,h3{font-family:"Fredoka",system-ui,sans-serif;font-weight:600;line-height:1.15;margin:0}
+h1{font-size:clamp(44px,9vw,78px);letter-spacing:-.03em}
+h2{font-size:clamp(26px,4.4vw,34px);letter-spacing:-.02em;margin:0 0 6px}
+h3{font-size:19px;font-weight:500;margin:0 0 4px}
+p{margin:0 0 14px;max-width:64ch}
+.leise{color:var(--tinte-2)}
+.klein{font-size:14px;line-height:1.55}
+.mono{font-family:"DM Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+
+section{margin:0 0 64px;scroll-margin-top:20px}
+.kopf{display:flex;align-items:baseline;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.kopf .zahl{font-family:"DM Mono",monospace;font-size:13px;color:var(--mint);background:var(--mint-weich);padding:3px 10px;border-radius:var(--r-pille)}
+
+/* ---------- Papierkarte mit Abrisskante ---------- */
+.papier{
+  position:relative;background:var(--karte);border-radius:var(--r-karte);
+  padding:26px;box-shadow:var(--schatten-ruhe);
+}
+.papier.abriss{border-bottom-left-radius:0;border-bottom-right-radius:0;margin-bottom:14px}
+.papier.abriss::after{
+  content:"";position:absolute;left:0;right:0;bottom:-11px;height:12px;
+  background:
+    linear-gradient(135deg,var(--karte) 25%,transparent 25%) -11px 0,
+    linear-gradient(225deg,var(--karte) 25%,transparent 25%) -11px 0;
+  background-size:22px 22px;
+}
+
+/* ---------- Hero ---------- */
+.hero{padding:56px 0 40px;text-align:center;position:relative}
+.marke{display:inline-flex;align-items:center;gap:14px;margin-bottom:22px}
+.markenfeld{width:64px;height:64px;border-radius:18px;background:var(--nacht);display:grid;place-items:center}
+.claim{font-size:19px;color:var(--tinte-2);max-width:34ch;margin:12px auto 0}
+.stempel{
+  position:relative;display:inline-block;margin-top:34px;
+  font-family:"Fredoka",sans-serif;font-size:30px;font-weight:600;color:var(--mint);
+  border:4px solid var(--mint);border-radius:16px;padding:8px 26px;
+  transform:rotate(-7deg);background:var(--mint-weich);
+}
+.stempel.los{animation:stempeln 620ms var(--ease-zack) both}
+@keyframes stempeln{
+  0%{transform:rotate(-24deg) scale(2.4);opacity:0}
+  55%{transform:rotate(-4deg) scale(.92);opacity:1}
+  75%{transform:rotate(-9deg) scale(1.06)}
+  100%{transform:rotate(-7deg) scale(1);opacity:1}
+}
+
+/* ---------- Farbe ---------- */
+.farbgitter{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.farbe{border-radius:var(--r-karte);padding:16px;min-height:118px;display:flex;flex-direction:column;justify-content:flex-end;box-shadow:var(--schatten-ruhe)}
+.farbe b{font-family:"Fredoka",sans-serif;font-weight:500;font-size:17px}
+.farbe span{font-family:"DM Mono",monospace;font-size:13px;opacity:.75}
+
+/* ---------- Typo ---------- */
+.typzeile{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;padding:14px 0;border-bottom:1px dashed rgba(14,59,51,.18)}
+.typzeile:last-child{border-bottom:0}
+.typzeile .meta{font-family:"DM Mono",monospace;font-size:12px;color:var(--tinte-2);min-width:150px}
+
+/* ---------- Personen ---------- */
+.crew{display:flex;gap:10px;flex-wrap:wrap}
+.pers{width:42px;height:42px;border-radius:var(--r-pille);display:grid;place-items:center;font-family:"Fredoka",sans-serif;font-weight:500;font-size:15px;color:#fff;cursor:pointer;border:0;transition:transform var(--dauer-tipp) var(--ease-weich)}
+.pers:active{transform:scale(.9)}
+.pers.hopp{animation:hopp 420ms var(--ease-zack)}
+@keyframes hopp{
+  0%{transform:scale(1) rotate(0)}
+  35%{transform:scale(1.22) rotate(-8deg)}
+  65%{transform:scale(.95) rotate(5deg)}
+  100%{transform:scale(1) rotate(0)}
+}
+
+/* ---------- Demo-Karten ---------- */
+.demos{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.demo{background:var(--karte);border-radius:var(--r-karte);padding:20px;box-shadow:var(--schatten-ruhe);display:flex;flex-direction:column}
+.buehne{background:var(--papier);border-radius:16px;height:150px;margin:14px 0;position:relative;overflow:hidden;display:grid;place-items:center}
+.knopf{
+  align-self:flex-start;margin-top:auto;font-family:"Manrope",sans-serif;font-weight:700;font-size:14px;
+  background:var(--nacht);color:#fff;border:0;border-radius:var(--r-pille);padding:9px 18px;cursor:pointer;
+  transition:transform var(--dauer-tipp) var(--ease-weich)
+}
+.knopf:hover{transform:translateY(-1px)}
+.knopf:active{transform:scale(.95)}
+.knopf:focus-visible{outline:3px solid var(--lavendel);outline-offset:2px}
+.spec{font-family:"DM Mono",monospace;font-size:12px;color:var(--tinte-2);margin-top:10px}
+
+/* Bon einzieht */
+.bonstreifen{width:120px;background:#fff;border-radius:8px 8px 0 0;padding:12px 10px 16px;box-shadow:var(--schatten-hoch);position:absolute;top:-160px}
+.bonstreifen .z{height:6px;background:rgba(14,59,51,.16);border-radius:3px;margin-bottom:6px}
+.bonstreifen .z.kurz{width:60%}
+.bonstreifen.los{animation:einzug 780ms var(--ease-zack) forwards}
+@keyframes einzug{
+  0%{top:-160px;transform:rotate(0)}
+  70%{top:26px;transform:rotate(-3deg)}
+  85%{top:18px;transform:rotate(2deg)}
+  100%{top:22px;transform:rotate(-1.5deg)}
+}
+
+/* Münzflug */
+.bahn{position:absolute;left:26px;top:64px}
+.muenze{width:34px;height:34px;border-radius:var(--r-pille);background:var(--bon);display:grid;place-items:center;font-family:"Fredoka",sans-serif;font-weight:600;font-size:13px;color:#7A5200;opacity:0}
+.bahn.los{animation:flugx 760ms linear forwards}
+.bahn.los .muenze{animation:flugy 760ms cubic-bezier(.4,0,.6,1) forwards, muenzdreh 760ms linear forwards}
+@keyframes flugx{0%{transform:translateX(0);opacity:1}100%{transform:translateX(180px);opacity:1}}
+@keyframes flugy{0%{transform:translateY(0);opacity:1}50%{transform:translateY(-52px)}100%{transform:translateY(4px);opacity:0}}
+@keyframes muenzdreh{to{rotate:540deg}}
+.ziel{position:absolute;right:26px;top:56px}
+
+/* Budgetleiste */
+.budget{width:100%;padding:0 18px}
+.budgetzeile{display:flex;justify-content:space-between;font-size:13px;font-family:"DM Mono",monospace;margin-bottom:8px}
+.balken{height:14px;border-radius:var(--r-pille);background:rgba(14,59,51,.1);overflow:hidden}
+.fuellung{height:100%;width:6%;border-radius:var(--r-pille);background:var(--mint);transition:width 900ms var(--ease-zack),background-color 300ms linear}
+.balken.zittern{animation:zittern 420ms ease-in-out}
+@keyframes zittern{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+
+/* Zahlenrolle */
+.grossbetrag{font-family:"DM Mono",monospace;font-size:38px;font-weight:500;font-variant-numeric:tabular-nums}
+
+/* Häkchen */
+.haken circle{stroke-dasharray:170;stroke-dashoffset:170}
+.haken path{stroke-dasharray:44;stroke-dashoffset:44}
+.haken.los circle{animation:zeichnen 480ms var(--ease-weich) forwards}
+.haken.los path{animation:zeichnen 320ms var(--ease-weich) 320ms forwards}
+@keyframes zeichnen{to{stroke-dashoffset:0}}
+
+/* Knüllen */
+.knuellkarte{width:210px;background:#fff;border-radius:14px;padding:14px;box-shadow:var(--schatten-ruhe);font-size:14px}
+.knuellkarte.los{animation:knuellen 520ms cubic-bezier(.5,-0.2,.7,1) forwards}
+@keyframes knuellen{
+  0%{transform:scale(1) rotate(0);opacity:1}
+  40%{transform:scale(.78) rotate(9deg) skewX(-8deg)}
+  100%{transform:scale(.12) rotate(-26deg) skewX(14deg);opacity:0}
+}
+
+/* Konfetti */
+.schnipsel{position:absolute;width:8px;height:14px;border-radius:2px;opacity:0}
+.schnipsel.los{animation:fliegen 1100ms cubic-bezier(.2,.6,.4,1) forwards}
+@keyframes fliegen{
+  0%{opacity:1;transform:translate(0,0) rotate(0)}
+  100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--dr))}
+}
+
+/* Zetti */
+.zetti{cursor:pointer}
+.auge{transform-origin:center;animation:blinzeln 5.2s infinite}
+@keyframes blinzeln{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.08)}}
+.zetti.winkt .arm{animation:winken 700ms ease-in-out 2}
+@keyframes winken{0%,100%{transform:rotate(0)}50%{transform:rotate(-26deg)}}
+
+/* Sheet */
+.sheetbuehne{align-items:flex-end}
+.sheet{width:220px;background:#fff;border-radius:20px 20px 0 0;padding:14px;box-shadow:var(--schatten-hoch);transform:translateY(110%);position:absolute;bottom:0}
+.sheet.los{animation:hoch var(--dauer-sheet) var(--ease-zack) forwards}
+@keyframes hoch{to{transform:translateY(0)}}
+.waehrungszeile{display:flex;justify-content:space-between;font-size:14px;padding:5px 2px;border-bottom:1px dashed rgba(14,59,51,.15)}
+.euro{font-family:"Fredoka",sans-serif;font-size:30px;color:var(--nacht);position:absolute;top:22px}
+.euro.los{animation:eurodreh var(--dauer-sheet) var(--ease-zack)}
+@keyframes eurodreh{0%{rotate:0;scale:1}60%{rotate:380deg;scale:1.25}100%{rotate:360deg;scale:1}}
+
+/* Skeleton */
+.skelett{width:150px}
+.skelett i{display:block;height:11px;border-radius:6px;margin-bottom:9px;background:linear-gradient(90deg,rgba(14,59,51,.09) 25%,rgba(14,59,51,.18) 37%,rgba(14,59,51,.09) 63%);background-size:400% 100%;animation:schimmer 1.4s ease-in-out infinite}
+.skelett i:nth-child(2){width:70%}
+.skelett i:nth-child(3){width:85%}
+@keyframes schimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
+
+/* Bausteine */
+.saldozeile{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px dashed rgba(14,59,51,.15)}
+.saldozeile:last-child{border-bottom:0}
+.saldozeile .name{flex:1;font-weight:700}
+.betrag{font-family:"DM Mono",monospace;font-weight:500}
+.plus{color:var(--mint)}
+.minus{color:var(--koralle)}
+
+/* Tabelle */
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-weight:700;padding:10px 8px;border-bottom:2px solid rgba(14,59,51,.15)}
+td{padding:10px 8px;border-bottom:1px dashed rgba(14,59,51,.15);vertical-align:top}
+td.mono{white-space:nowrap}
+
+/* Do / Don't */
+.regeln{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.regel{border-radius:var(--r-karte);padding:20px}
+.regel.ja{background:var(--mint-weich)}
+.regel.nein{background:var(--koralle-weich)}
+.regel ul{margin:0;padding-left:18px}
+.regel li{margin-bottom:8px}
+.regel h3{font-family:"Fredoka",sans-serif}
+
+.hinweis{background:var(--bon-weich);border-radius:var(--r-karte);padding:20px 22px}
+
+/* ---------- Analoge Bausteine ---------- */
+.papier::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:repeating-linear-gradient(92deg, rgba(14,59,51,.03) 0 1px, transparent 1px 4px);
+}
+.kipp-l{transform:rotate(-.9deg)}
+.kipp-r{transform:rotate(.8deg)}
+
+.liniert{background-image:repeating-linear-gradient(transparent 0 27px, rgba(14,59,51,.09) 27px 28px);background-position:0 20px}
+.kariert{background-image:linear-gradient(rgba(14,59,51,.075) 1px,transparent 1px),linear-gradient(90deg,rgba(14,59,51,.075) 1px,transparent 1px);background-size:22px 22px}
+
+.zettel{
+  position:relative;width:190px;min-height:170px;padding:20px 18px 26px;
+  font-family:"Caveat",cursive;font-size:22px;line-height:1.32;color:#2A3A2E;
+  background:#FFE873;border-radius:1px 1px 3px 3px;transform:rotate(-2.2deg);
+  box-shadow:1px 2px 0 rgba(14,59,51,.05), 7px 14px 24px rgba(14,59,51,.15);
+}
+.zettel::after{content:"";position:absolute;left:0;right:0;bottom:0;height:30px;pointer-events:none;
+  background:linear-gradient(to top, rgba(14,59,51,.09), transparent)}
+.zettel .ecke{position:absolute;right:0;bottom:0;width:0;height:0;border-style:solid;
+  border-width:0 0 20px 20px;border-color:transparent transparent rgba(255,255,255,.6) transparent;
+  filter:drop-shadow(-2px -2px 2px rgba(14,59,51,.16))}
+.zettel.mint{background:#B9F0DA}
+.zettel.koralle{background:#FFC3B4}
+.zettel.lavendel{background:#DDD3FF}
+.zettel.klein-zettel{width:136px;min-height:112px;font-size:19px;padding:14px 14px 20px}
+.zettel.klebt{animation:kleben 640ms var(--ease-zack) both}
+@keyframes kleben{
+  0%{transform:translateY(-90px) rotate(-15deg) scale(1.07);opacity:0}
+  55%{transform:translateY(5px) rotate(2deg) scale(1);opacity:1}
+  78%{transform:translateY(-4px) rotate(-4.5deg)}
+  100%{transform:translateY(0) rotate(-2.2deg);opacity:1}
+}
+
+.band{
+  position:absolute;width:104px;height:27px;top:-13px;left:50%;z-index:2;
+  background:rgba(255,228,132,.6);box-shadow:0 1px 3px rgba(14,59,51,.14);
+  transform:translateX(-50%) rotate(-2.4deg);
+  clip-path:polygon(4% 0,96% 5%,100% 95%,1% 100%);
+}
+.band.mint{background:rgba(150,232,204,.6)}
+
+.karteikarte{
+  position:relative;background:#FFFDF8;border-radius:3px;padding:18px;
+  box-shadow:var(--schatten-ruhe);border-top:3px solid rgba(206,84,72,.55);
+  background-image:repeating-linear-gradient(transparent 0 25px, rgba(72,118,186,.18) 25px 26px);
+  background-position:0 22px;
+}
+
+.hand{font-family:"Caveat",cursive;font-size:21px;line-height:1.3;color:#2C6B58;transform:rotate(-1.1deg)}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<div class="rolle">
+
+<header class="hero">
+  <div class="marke">
+    <div class="markenfeld">
+      <svg width="36" height="36" viewBox="0 0 48 48" aria-hidden="true">
+        <rect x="6" y="13" width="36" height="8" rx="4" fill="#00B37E"/>
+        <path d="M6 31q0-4 4-4h28q4 0 4 4v8l-2.25-4-2.25 4-2.25-4-2.25 4-2.25-4-2.25 4-2.25-4-2.25 4-2.25-4-2.25 4-2.25-4-2.25 4-2.25-4-2.25 4-2.25-4L6 39z" fill="#FFC947"/>
+      </svg>
+    </div>
+    <h1>quitt</h1>
+  </div>
+  <p class="claim">Geld zwischen Freunden, ohne dass es komisch wird. Bon rein, Häkchen dran, fertig.</p>
+  <div><span class="stempel" id="stempel">quitt!</span></div>
+  <p class="klein leise" style="margin-top:18px">Design-Vorschlag · verspielte Richtung · alle Animationen auf dieser Seite laufen echt</p>
+</header>
+
+<section>
+  <div class="kopf"><h2>Worum es geht</h2></div>
+  <div class="papier abriss kipp-l">
+    <div class="band"></div>
+    <p>Eine Abrechnungs-App ist für die meisten Menschen ein leicht unangenehmes Ding: Man rechnet Freunden vor, was sie schulden. Genau da setzt die Gestaltung an. <strong>quitt</strong> soll sich anfühlen wie ein Zettel am Kühlschrank, nicht wie ein Kontoauszug.</p>
+    <p>Die gesamte Formensprache kommt aus einem einzigen Material: <strong>Thermopapier</strong>. Abrisskanten, Papierstreifen, gestempelte Freigaben, Schnipsel. Das ist der rote Faden, der die App von jeder anderen Finanz-App unterscheidet und gleichzeitig erklärt, was sie tut.</p>
+    <p class="hand" style="margin:18px 0 0">alles hier ist CSS – keine einzige Bilddatei</p>
+  </div>
+</section>
+
+<section>
+  <div class="kopf"><span class="zahl">01</span><h2>Drei Haltungen</h2></div>
+  <div class="demos">
+    <div class="demo"><h3>Papier statt Panel</h3><p class="klein leise">Karten liegen leicht schief, haben Abrisskanten und einen kleinen Höhenversatz im Schatten. Nie randlos, nie eckig, nie grau.</p></div>
+    <div class="demo"><h3>Zahlen bleiben ruhig</h3><p class="klein leise">Der Spaß passiert in Bewegung, Farbe und Sprache. Beträge stehen still, in Monospace, links ausgerichtet, ohne Deko. Wer Geld liest, will nicht animiert werden.</p></div>
+    <div class="demo"><h3>Belohnung am Ende</h3><p class="klein leise">Genau ein großer Moment: wenn alle Schulden aufgelöst sind. Der Rest der App ist freundlich, aber zurückhaltend.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="kopf"><span class="zahl">02</span><h2>Farbe</h2></div>
+  <p class="leise">Mint trägt, Koralle warnt freundlich, Bon-Gelb feiert. Nachtgrün ist die einzige dunkle Fläche und gehört den Hauptaktionen.</p>
+  <div class="farbgitter">
+    <div class="farbe" style="background:var(--mint);color:#04352A"><b>Mint</b><span>#00B37E</span></div>
+    <div class="farbe" style="background:var(--koralle);color:#5A1B0C"><b>Koralle</b><span>#FF6B4A</span></div>
+    <div class="farbe" style="background:var(--bon);color:#5C3D00"><b>Bon-Gelb</b><span>#FFC947</span></div>
+    <div class="farbe" style="background:var(--lavendel);color:#1C0F55"><b>Lavendel</b><span>#7C5CFF</span></div>
+    <div class="farbe" style="background:var(--nacht);color:#CFEDE4"><b>Nachtgrün</b><span>#0E3B33</span></div>
+    <div class="farbe" style="background:var(--papier);color:var(--tinte)"><b>Papier</b><span>#F2F4EF</span></div>
+  </div>
+  <div class="papier" style="margin-top:16px">
+    <h3>Bedeutung</h3>
+    <div class="saldozeile"><span class="name">Du bekommst</span><span class="betrag plus">Mint · +12,40 €</span></div>
+    <div class="saldozeile"><span class="name">Du schuldest</span><span class="betrag minus">Koralle · −7,15 €</span></div>
+    <div class="saldozeile"><span class="name">Ausgeglichen</span><span class="betrag leise">Lavendel · 0,00 €</span></div>
+    <p class="klein leise" style="margin:14px 0 0">Rot bleibt frei für echte Fehler. Eine Schuld an Patrick ist kein Fehler.</p>
+  </div>
+</section>
+
+<section>
+  <div class="kopf"><span class="zahl">03</span><h2>Schrift</h2></div>
+  <div class="papier">
+    <div class="typzeile"><span class="meta">Fredoka 600 · 34px</span><span style="font-family:Fredoka;font-weight:600;font-size:34px">Ihr seid quitt</span></div>
+    <div class="typzeile"><span class="meta">Fredoka 500 · 19px</span><span style="font-family:Fredoka;font-weight:500;font-size:19px">Wochenendeinkauf</span></div>
+    <div class="typzeile"><span class="meta">Manrope 400 · 16px</span><span>Jonas hat bezahlt, drei von vier Positionen sind zugeordnet.</span></div>
+    <div class="typzeile"><span class="meta">DM Mono 500 · 28px</span><span class="mono" style="font-size:28px">412,80&nbsp;€</span></div>
+    <div class="typzeile"><span class="meta">DM Mono 400 · 13px</span><span class="mono klein">REWE · 01.09.2026 · 14 Positionen</span></div>
+  </div>
+  <p class="klein leise" style="margin-top:12px">Fredoka für Überschriften und Buttons (rund, freundlich, ohne albern zu wirken). Manrope für alles Gelesene. DM Mono ausschließlich für Beträge und Bon-Daten, immer mit <span class="mono">tabular-nums</span>, damit Spalten nicht springen.</p>
+</section>
+
+<section>
+  <div class="kopf"><span class="zahl">04</span><h2>Personen</h2></div>
+  <p class="leise">Acht Farben, feste Zuordnung pro Person. Tippen schaltet die Person auf einer Position an oder aus – probier's aus.</p>
+  <div class="papier">
+    <div class="crew" id="crew"></div>
+    <p class="klein leise" style="margin:16px 0 0">Farben sind bewusst unterschiedlich hell, damit sie auch bei Farbsehschwäche unterscheidbar bleiben. Zusätzlich immer Initiale im Kreis, nie Farbe allein.</p>
+  </div>
+</section>
+
+<section>
+  <div class="kopf"><span class="zahl">05</span><h2>Zetti</h2></div>
+  <div class="papier" style="display:flex;gap:24px;align-items:center;flex-wrap:wrap">
+    <svg class="zetti" id="zetti" width="110" height="140" viewBox="0 0 110 140" role="img" aria-label="Zetti, das Bon-Maskottchen">
+      <path d="M22 16q0-8 8-8h50q8 0 8 8v104l-5.5-8-5.5 8-5.5-8-5.5 8-5.5-8-5.5 8-5.5-8-5.5 8-5.5-8-5.5 8-5.5-8L22 128z" fill="#fff" stroke="#0E3B33" stroke-width="3" stroke-linejoin="round"/>
+      <g class="auge"><circle cx="44" cy="52" r="5.5" fill="#0E3B33"/></g>
+      <g class="auge"><circle cx="68" cy="52" r="5.5" fill="#0E3B33"/></g>
+      <path d="M46 70q9 8 20 0" stroke="#0E3B33" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <rect x="36" y="88" width="40" height="5" rx="2.5" fill="#DCF5EC"/>
+      <rect x="36" y="99" width="26" height="5" rx="2.5" fill="#DCF5EC"/>
+      <g class="arm" style="transform-origin:88px 60px"><rect x="86" y="56" width="18" height="7" rx="3.5" fill="#0E3B33"/></g>
+    </svg>
+    <div style="flex:1;min-width:240px">
+      <h3>Ein Maskottchen, kein Assistent</h3>
+      <p class="klein leise">Zetti ist ein Bonstreifen mit Gesicht. Er blinzelt alle paar Sekunden, winkt beim Antippen und taucht an genau drei Stellen auf: leerer Zustand, erfolgreich abgerechnet, und wenn ein Import schiefgeht. Er redet nicht, er hat keine Sprechblasen, er gibt keine Tipps. Dadurch bleibt er charmant statt nervig.</p>
+      <p class="klein leise" style="margin:0">Optional abschaltbar in den Einstellungen unter „Zetti anzeigen“.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="kopf"><span class="zahl">06</span><h2>Papiersorten</h2></div>
+  <p class="leise">Drei Sorten mit klarer Aufgabe. Sie werden nie gemischt: Ein Element ist entweder Bon, Klebezettel oder Karteikarte.</p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:30px;align-items:start;margin-bottom:26px">
+    <div>
+      <div class="zettel">Milch war im Angebot, deshalb 0,89 statt 1,19<span class="ecke"></span></div>
+      <p class="klein leise" style="margin-top:24px"><strong>Klebezettel</strong> für alles von Hand Ergänzte: Notiz zu einem Beleg, Erinnerung an offene Posten. Vier Farben, immer leicht schief, nie mehr als einer pro Bildschirm.</p>
+    </div>
+    <div>
+      <div class="karteikarte kipp-r">
+        <strong style="font-family:Fredoka;font-size:18px">Wochenendeinkauf</strong>
+        <div class="mono klein" style="margin-top:4px;color:var(--tinte-2)">REWE · 01.09.2026</div>
+        <div class="mono" style="margin-top:16px;font-size:22px">42,17 €</div>
+      </div>
+      <p class="klein leise" style="margin-top:24px"><strong>Karteikarte</strong> für einen einzelnen Beleg in der Übersicht. Roter Kopfstrich, blaue Linien, fast kein Radius. Liest sich sofort als Dokument.</p>
+    </div>
+  </div>
+
+  <div class="papier liniert kipp-l">
+    <div class="band mint"></div>
+    <h3>Bon-Streifen</h3>
+    <p class="klein leise">Die Positionsliste bleibt der Bon: Monospace, gestrichelte Trennlinien, Abrisskante. Hier passiert die eigentliche Arbeit, deshalb steckt hier am wenigsten Deko.</p>
+    <div class="saldozeile"><span class="name" style="font-weight:400">Bio-Müsli 500 g</span><span class="betrag">3,49 €</span></div>
+    <div class="saldozeile"><span class="name" style="font-weight:400">Hafermilch ×2</span><span class="betrag">2,38 €</span></div>
+    <p class="hand" style="margin:18px 0 0">↑ Müsli nur Patrick, also 100 % auf ihn</p>
+  </div>
+
+  <p class="klein leise" style="margin-top:16px">Die Textur liegt auf Flächen und Rahmen, nie hinter Beträgen. Handschrift ist ausschließlich Dekoration und Randnotiz – kein Preis, kein Name, kein Button wird jemals handschriftlich gesetzt.</p>
+</section>
+
+<section>
+  <div class="kopf"><span class="zahl">07</span><h2>Bewegung</h2></div>
+  <p class="leise">Jede Animation beantwortet eine Handlung oder zeigt eine Veränderung. Nichts bewegt sich nur, weil es hübsch aussieht.</p>
+  <div class="demos">
+
+    <div class="demo">
+      <h3>Bon läuft ein</h3>
+      <p class="klein leise">Nach dem JSON-Import fährt der Beleg von oben ins Bild und wippt aus, als käme er aus einem Drucker.</p>
+      <div class="buehne" id="b-einzug">
+        <div class="bonstreifen" id="einzug"><div class="z"></div><div class="z kurz"></div><div class="z"></div><div class="z kurz"></div></div>
+      </div>
+      <button class="knopf" data-play="einzug">Abspielen</button>
+      <div class="spec">780ms · ease-zack · nur bei erfolgreichem Import</div>
+    </div>
+
+    <div class="demo">
+      <h3>Der quitt-Stempel</h3>
+      <p class="klein leise">Der große Moment. Sobald alle Salden auf null stehen, knallt der Stempel aufs Papier und Bon-Schnipsel fliegen weg.</p>
+      <div class="buehne" id="b-feier"><span class="stempel" id="feier-stempel">quitt!</span></div>
+      <button class="knopf" data-play="feier">Abspielen</button>
+      <div class="spec">620ms Stempel + 1100ms Schnipsel · einmal pro Abrechnung</div>
+    </div>
+
+    <div class="demo">
+      <h3>Münzflug</h3>
+      <p class="klein leise">Beim Markieren einer Zahlung fliegt der Betrag im Bogen vom Schuldner zum Gläubiger. Zeigt in einer Sekunde, wer wem gab.</p>
+      <div class="buehne">
+        <div class="bahn" id="bahn"><div class="muenze">5€</div></div>
+        <div class="ziel"><div class="pers" style="background:#00B37E">P</div></div>
+      </div>
+      <button class="knopf" data-play="muenze">Abspielen</button>
+      <div class="spec">760ms · x linear, y ease-in-out · Bogenhöhe 52px</div>
+    </div>
+
+    <div class="demo">
+      <h3>Budgetleiste</h3>
+      <p class="klein leise">Der Balken füllt sich federnd. Ab 90 Prozent wechselt er auf Koralle und zittert einmal – kein Ton, kein Dialog.</p>
+      <div class="buehne">
+        <div class="budget">
+          <div class="budgetzeile"><span id="b-aus">0,00 € von 600 €</span><span id="b-rest">noch 600,00 €</span></div>
+          <div class="balken" id="balken"><div class="fuellung" id="fuellung"></div></div>
+        </div>
+      </div>
+      <button class="knopf" data-play="budget">Abspielen</button>
+      <div class="spec">900ms Füllung · Zittern nur einmalig bei Schwellenwechsel</div>
+    </div>
+
+    <div class="demo">
+      <h3>Zahlenrolle</h3>
+      <p class="klein leise">Summen zählen hoch statt zu erscheinen. Nur bei Gesamtbeträgen, niemals in Listen – sonst tanzt die ganze Seite.</p>
+      <div class="buehne"><span class="grossbetrag" id="rolle">0,00 €</span></div>
+      <button class="knopf" data-play="rolle">Abspielen</button>
+      <div class="spec">600ms · ease-out · tabular-nums Pflicht</div>
+    </div>
+
+    <div class="demo">
+      <h3>Häkchen zeichnet sich</h3>
+      <p class="klein leise">Bestätigungen malen sich selbst, statt zu poppen. Ruhiger und wertiger als ein Bounce.</p>
+      <div class="buehne">
+        <svg class="haken" id="haken" width="76" height="76" viewBox="0 0 76 76" aria-hidden="true">
+          <circle cx="38" cy="38" r="27" fill="none" stroke="#00B37E" stroke-width="5" stroke-linecap="round" transform="rotate(-90 38 38)"/>
+          <path d="M26 39l9 9 16-18" fill="none" stroke="#00B37E" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <button class="knopf" data-play="haken">Abspielen</button>
+      <div class="spec">480ms Kreis + 320ms Haken versetzt</div>
+    </div>
+
+    <div class="demo">
+      <h3>Papier zerknüllen</h3>
+      <p class="klein leise">Löschen per Wischen: die Karte knüllt sich zusammen und verschwindet. Danach fünf Sekunden „Rückgängig“ als Streifen unten.</p>
+      <div class="buehne"><div class="knuellkarte" id="knuell"><strong>Bio-Müsli 500 g</strong><br><span class="mono klein">3,49 €</span></div></div>
+      <button class="knopf" data-play="knuell">Abspielen</button>
+      <div class="spec">520ms · ease-in · immer mit Undo</div>
+    </div>
+
+    <div class="demo">
+      <h3>Währungsblatt</h3>
+      <p class="klein leise">Tippen aufs Währungszeichen: das Symbol dreht sich einmal, das Blatt fährt hoch. Die Drehung verbindet Auslöser und Ergebnis.</p>
+      <div class="buehne sheetbuehne">
+        <span class="euro" id="euro">€</span>
+        <div class="sheet" id="sheet">
+          <div class="waehrungszeile"><span>Euro</span><span class="mono">EUR</span></div>
+          <div class="waehrungszeile"><span>Schweizer Franken</span><span class="mono">CHF</span></div>
+          <div class="waehrungszeile" style="border-bottom:0"><span>Thai Baht</span><span class="mono">THB</span></div>
+        </div>
+      </div>
+      <button class="knopf" data-play="sheet">Abspielen</button>
+      <div class="spec">320ms · ease-zack · Blatt schließt per Wisch nach unten</div>
+    </div>
+
+    <div class="demo">
+      <h3>Zettel ankleben</h3>
+      <p class="klein leise">Eine Notiz fällt von oben aufs Papier, wippt einmal aus und bleibt schief liegen. Für jede handschriftliche Anmerkung.</p>
+      <div class="buehne"><div class="zettel klein-zettel koralle" id="kleben">Rest zahlt Sam<span class="ecke"></span></div></div>
+      <button class="knopf" data-play="kleben">Abspielen</button>
+      <div class="spec">640ms · ease-zack · Endlage immer leicht rotiert</div>
+    </div>
+
+    <div class="demo">
+      <h3>Ladezustand</h3>
+      <p class="klein leise">Kein Spinner. Stattdessen ein leerer Bon, dessen Zeilen schimmern – dieselbe Form, die gleich mit Inhalt gefüllt wird.</p>
+      <div class="buehne"><div class="skelett"><i></i><i></i><i></i><i></i></div></div>
+      <button class="knopf" disabled style="opacity:.45;cursor:default">Läuft dauerhaft</button>
+      <div class="spec">1400ms Schleife · pausiert nach 10s ohne Antwort</div>
+    </div>
+
+  </div>
+</section>
+
+<section>
+  <div class="kopf"><span class="zahl">08</span><h2>Bewegungs-Tokens</h2></div>
+  <div class="papier">
+    <table>
+      <thead><tr><th>Token</th><th>Wert</th><th>Wofür</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">--dauer-tipp</td><td class="mono">120ms</td><td>Tastendruck, Umschalter, Haken setzen</td></tr>
+        <tr><td class="mono">--dauer-standard</td><td class="mono">220ms</td><td>Ein- und Ausblenden, Listenwechsel, Farbwechsel</td></tr>
+        <tr><td class="mono">--dauer-sheet</td><td class="mono">320ms</td><td>Blätter, Dialoge, Seitenwechsel</td></tr>
+        <tr><td class="mono">--dauer-feier</td><td class="mono">700ms+</td><td>ausschließlich Stempel, Münzflug, Konfetti</td></tr>
+        <tr><td class="mono">--ease-weich</td><td class="mono">.22,.61,.36,1</td><td>alles Sachliche</td></tr>
+        <tr><td class="mono">--ease-zack</td><td class="mono">.34,1.56,.64,1</td><td>alles mit Charakter, Überschwinger inklusive</td></tr>
+      </tbody>
+    </table>
+    <p class="klein leise" style="margin:16px 0 0">Regel: Wenn du dich fragst, ob eine Animation länger als 320ms sein darf, darf sie es nicht. Ausnahmen stehen oben und sind abgezählt.</p>
+  </div>
+</section>
+
+<section>
+  <div class="kopf"><span class="zahl">09</span><h2>Grenzen</h2></div>
+  <div class="regeln">
+    <div class="regel ja">
+      <h3>Machen</h3>
+      <ul class="klein">
+        <li>Bewegung als Antwort auf eine Handlung</li>
+        <li>Genau ein Feiermoment pro Abrechnung</li>
+        <li>Abrisskanten und leichte Schräglagen als wiederkehrendes Motiv</li>
+        <li>Sprache locker: „Ihr seid quitt“, „Noch drei Posten offen“</li>
+        <li><span class="mono">prefers-reduced-motion</span> ernst nehmen: Zustände wechseln sofort, nichts geht verloren</li>
+      </ul>
+    </div>
+    <div class="regel nein">
+      <h3>Lassen</h3>
+      <ul class="klein">
+        <li>Einblenden beim Scrollen auf jedem Abschnitt</li>
+        <li>Hover-Effekte auf allem, was eine Karte ist</li>
+        <li>Animierte Beträge in Listen</li>
+        <li>Konfetti bei jeder Kleinigkeit – es entwertet den Stempel</li>
+        <li>Witzige Fehlermeldungen. Fehler bleiben sachlich, der Humor lebt im Erfolg</li>
+        <li>Maskottchen, das ungefragt Tipps gibt</li>
+        <li>Handschrift für Beträge, Namen oder Buttons – nur Randnotizen</li>
+        <li>Textur hinter Zahlen legen. Beträge stehen immer auf ruhiger Fläche</li>
+        <li>Mehr als drei schiefe Elemente auf einem Bildschirm</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="kopf"><span class="zahl">10</span><h2>Umsetzung</h2></div>
+  <div class="hinweis">
+    <p class="klein" style="margin-bottom:10px"><strong>Ohne zusätzliche Bibliothek.</strong> Alles auf dieser Seite läuft mit reinem CSS und rund 60 Zeilen JavaScript. Für Layoutwechsel und Listen reicht später <span class="mono">view-transition</span> plus CSS-Keyframes. Eine Animationsbibliothek erst holen, wenn Gesten dazukommen.</p>
+    <p class="klein" style="margin-bottom:10px"><strong>Papieroptik kostet nichts.</strong> Faserstruktur, Linien, Karo, Klebeband und Abrisskante sind reine CSS-Gradienten und <span class="mono">clip-path</span> – null Bilddateien, null zusätzliche Requests. Nur die Faserstruktur bekommt auf sehr langen Listen ein <span class="mono">will-change</span>-Verbot, sonst ruckelt das Scrollen auf älteren Android-Geräten.</p>
+    <p class="klein" style="margin-bottom:10px"><strong>Vier Schriftschnitte laden</strong> (Fredoka 500/600, Manrope 400/700, DM Mono 400/500, Caveat 500), selbst gehostet über Cloudflare statt Google Fonts. Spart einen Fremd-Request und die Cookie-Diskussion.</p>
+    <p class="klein" style="margin:0"><strong>Dunkelmodus</strong> ist vorgesehen: Papier wird <span class="mono">#151A18</span>, Karten <span class="mono">#1E2523</span>, Mint und Bon-Gelb bleiben, Koralle wird auf <span class="mono">#FF8468</span> aufgehellt. Kommt in P6, nicht früher.</p>
+  </div>
+</section>
+
+<footer class="klein leise" style="text-align:center;padding-top:8px">
+  quitt · Design-Vorschlag · verspielte Richtung
+</footer>
+
+</div>
+
+<script>
+const farben = [
+  ["J","#00B37E"],["P","#7C5CFF"],["L","#FF6B4A"],["S","#2E9BD6"],
+  ["M","#E2761B"],["K","#D4467F"],["B","#4C8C3A"],["T","#5A6B66"]
+];
+const crew = document.getElementById("crew");
+farben.forEach(([i,c])=>{
+  const b=document.createElement("button");
+  b.className="pers"; b.style.background=c; b.textContent=i;
+  b.setAttribute("aria-label","Person "+i+" zuordnen");
+  b.addEventListener("click",()=>neuStarten(b,"hopp"));
+  crew.appendChild(b);
+});
+
+function neuStarten(el,klasse){
+  el.classList.remove(klasse);
+  void el.offsetWidth;
+  el.classList.add(klasse);
+}
+
+function schnipsel(buehne){
+  buehne.querySelectorAll(".schnipsel").forEach(s=>s.remove());
+  const f=["#00B37E","#FFC947","#FF6B4A","#7C5CFF"];
+  for(let i=0;i<22;i++){
+    const s=document.createElement("span");
+    s.className="schnipsel";
+    s.style.background=f[i%4];
+    s.style.left="50%"; s.style.top="50%";
+    s.style.setProperty("--dx",(Math.random()*260-130).toFixed(0)+"px");
+    s.style.setProperty("--dy",(Math.random()*-150-30).toFixed(0)+"px");
+    s.style.setProperty("--dr",(Math.random()*720-360).toFixed(0)+"deg");
+    buehne.appendChild(s);
+    requestAnimationFrame(()=>s.classList.add("los"));
+  }
+}
+
+function rolleZaehlen(el,ziel,ms){
+  const start=performance.now();
+  function tick(t){
+    const p=Math.min((t-start)/ms,1);
+    const wert=ziel*(1-Math.pow(1-p,3));
+    el.textContent=wert.toFixed(2).replace(".",",")+" €";
+    if(p<1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+const spiele = {
+  einzug(){ neuStarten(document.getElementById("einzug"),"los"); },
+  feier(){
+    neuStarten(document.getElementById("feier-stempel"),"los");
+    setTimeout(()=>schnipsel(document.getElementById("b-feier")),240);
+  },
+  muenze(){ neuStarten(document.getElementById("bahn"),"los"); },
+  budget(){
+    const f=document.getElementById("fuellung"), b=document.getElementById("balken");
+    f.style.width="6%"; f.style.background="var(--mint)";
+    b.classList.remove("zittern");
+    setTimeout(()=>{
+      f.style.width="94%"; f.style.background="var(--koralle)";
+      document.getElementById("b-aus").textContent="564,00 € von 600 €";
+      document.getElementById("b-rest").textContent="noch 36,00 €";
+    },60);
+    setTimeout(()=>neuStarten(b,"zittern"),960);
+  },
+  rolle(){ rolleZaehlen(document.getElementById("rolle"),412.8,600); },
+  haken(){ neuStarten(document.getElementById("haken"),"los"); },
+  knuell(){
+    const k=document.getElementById("knuell");
+    neuStarten(k,"los");
+    setTimeout(()=>k.classList.remove("los"),1400);
+  },
+  kleben(){ neuStarten(document.getElementById("kleben"),"klebt"); },
+  sheet(){
+    neuStarten(document.getElementById("euro"),"los");
+    const s=document.getElementById("sheet");
+    s.classList.remove("los"); void s.offsetWidth; s.classList.add("los");
+    setTimeout(()=>s.classList.remove("los"),2600);
+  }
+};
+
+document.querySelectorAll("[data-play]").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    const fn=spiele[btn.dataset.play];
+    if(fn) fn();
+  });
+});
+
+const zetti=document.getElementById("zetti");
+zetti.addEventListener("click",()=>neuStarten(zetti,"winkt"));
+
+setTimeout(()=>document.getElementById("stempel").classList.add("los"),320);
+</script>
+</body>
+</html>

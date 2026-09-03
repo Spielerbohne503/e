@@ -1,3 +1,0 @@
--keepattributes *Annotation*
--keep class com.deadmode.app.receiver.** { *; }
--keep class com.deadmode.app.service.** { *; }
