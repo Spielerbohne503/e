@@ -33,6 +33,11 @@ export async function holeKurse(
   env: Env,
   basis: string,
 ): Promise<{ kurse: Kurse; stale: boolean }> {
+  // The cache is a convenience, not a requirement. Without the KV binding the
+  // rates are fetched directly — slower and chattier towards the upstream,
+  // but the app keeps working while Cloudflare is only half set up.
+  if (!env.FX) return { kurse: await ladeVonAussen(basis), stale: false }
+
   const schluessel = kvSchluessel(basis)
   const gespeichert = await env.FX.get<Kurse>(schluessel, 'json')
 

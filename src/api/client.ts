@@ -18,6 +18,8 @@ export class ApiFehler extends Error {
     message: string,
     readonly status: number,
     readonly feld?: string,
+    /** Set by the Worker when D1 is not configured yet. */
+    readonly einrichtung?: boolean,
   ) {
     super(message)
     this.name = 'ApiFehler'
@@ -26,6 +28,11 @@ export class ApiFehler extends Error {
   /** 401 means a PIN is set and missing or wrong. */
   get brauchtPin(): boolean {
     return this.status === 401
+  }
+
+  /** The Worker is live but has no database binding yet. */
+  get brauchtEinrichtung(): boolean {
+    return this.status === 503 && this.einrichtung === true
   }
 
   get keinZugriff(): boolean {
@@ -63,8 +70,13 @@ async function anfrage<T>(
   const daten = text ? (JSON.parse(text) as unknown) : null
 
   if (!antwort.ok) {
-    const body = daten as { fehler?: string; feld?: string } | null
-    throw new ApiFehler(body?.fehler ?? 'Da ist etwas schiefgegangen', antwort.status, body?.feld)
+    const body = daten as { fehler?: string; feld?: string; einrichtung?: boolean } | null
+    throw new ApiFehler(
+      body?.fehler ?? 'Da ist etwas schiefgegangen',
+      antwort.status,
+      body?.feld,
+      body?.einrichtung,
+    )
   }
 
   return daten as T

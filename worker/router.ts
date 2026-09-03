@@ -8,7 +8,7 @@ import {
   UpdateGroupInput,
   UpdateMemberInput,
 } from '../src/shared/api'
-import type { Env, Handler, Route } from './lib/http'
+import type { Env as EnvOhneDb, EnvMitDb, EnvMitDb as Env, Handler, Route } from './lib/http'
 import {
   fehler,
   findeRoute,
@@ -570,6 +570,16 @@ const ROUTES: Route[] = [
   { method: 'PUT', pattern: 'groups/:id/budgets/:bid', handler: budgetAendern },
   { method: 'DELETE', pattern: 'groups/:id/budgets/:bid', handler: budgetLoeschen },
 ]
+
+/**
+ * Exchange rates without the database. The rates endpoint is the one route
+ * that touches neither D1 nor a token, so it keeps working while Cloudflare
+ * is only half set up.
+ */
+export async function behandleFx(request: Request, env: EnvOhneDb): Promise<Response> {
+  const url = new URL(request.url)
+  return kurseLesen({ request, env: env as EnvMitDb, params: {}, url })
+}
 
 /**
  * Handles everything under /api. Called by the worker entry point, which

@@ -46,9 +46,9 @@ fällt auf `index.html` zurück, damit ein tiefer Link wie
    npx wrangler kv namespace create FX   # id → wrangler.toml
    ```
 
-   Solange die Platzhalter drinstehen, bricht der Deploy mit
-   `KV namespace 'PLATZHALTER_KV_ID' is not valid` ab — gewollt, damit keine
-   Version live geht, die zur Laufzeit an der Datenbank scheitert.
+   Bis dahin deployt der Worker trotzdem: er zeigt statt der App einen
+   Einrichtungs-Hinweis mit genau diesen Befehlen. Ein roter Build erklärt
+   nichts — eine erreichbare Seite, die sagt was fehlt, schon.
 
 2. **Migration fahren**
 
@@ -136,6 +136,18 @@ worker/          Worker: index.ts serviert Assets, router.ts die API
 migrations/      Nummerierte SQL-Migrationen
 docs/            Verbindliches Design-Dokument
 ```
+
+## Was ohne vollständige Einrichtung passiert
+
+Der Worker läuft auch, bevor D1 und KV existieren — er sagt dann, was fehlt,
+statt den Build scheitern zu lassen.
+
+| Fehlt | Folge |
+| ----- | ----- |
+| D1    | Die App zeigt den Einrichtungs-Hinweis, die API antwortet mit 503 und einer Anleitung. |
+| KV    | Wechselkurse werden direkt geholt statt aus dem Cache. Langsamer, sonst unverändert. |
+
+`GET /api/status` sagt es auch direkt: `{"bereit":true,"kurse":true}`.
 
 ## Zwei Regeln, die nie gebrochen werden
 

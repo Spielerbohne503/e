@@ -87,17 +87,39 @@ function kvAnlegen() {
 }
 
 function eintragen(d1Id, kvId) {
-  let toml = readFileSync(KONFIG, 'utf8')
+  const toml = readFileSync(KONFIG, 'utf8')
 
-  // Replace the placeholder, or an id that is already there — both work, so
-  // pointing the app at a different database is one run of this script.
-  toml = toml.replace(
-    /(\[\[d1_databases\]\][\s\S]*?database_id\s*=\s*)"[^"]*"/,
-    `$1"${d1Id}"`,
-  )
-  toml = toml.replace(/(\[\[kv_namespaces\]\][\s\S]*?\bid\s*=\s*)"[^"]*"/, `$1"${kvId}"`)
+  // The resource blocks ship commented out, because a placeholder id makes
+  // the deploy fail outright. This swaps the whole marked section for real
+  // bindings — and swaps it again on a second run, so pointing the app at a
+  // different database is one command.
+  const bloecke = [
+    '[[d1_databases]]',
+    'binding = "DB"',
+    `database_name = "${D1_NAME}"`,
+    `database_id = "${d1Id}"`,
+    '',
+    '[[kv_namespaces]]',
+    `binding = "${KV_NAME}"`,
+    `id = "${kvId}"`,
+  ].join('\n')
 
-  writeFileSync(KONFIG, toml)
+  const marker = /# --- RESSOURCEN[\s\S]*?# --- ENDE RESSOURCEN[^\n]*\n?/
+  const bereitsGesetzt = /\[\[d1_databases\]\]/.test(toml)
+
+  let neu
+  if (marker.test(toml)) {
+    neu = toml.replace(marker, `${bloecke}\n`)
+  } else if (bereitsGesetzt) {
+    // Already set up once: just refresh the two ids in place.
+    neu = toml
+      .replace(/(\[\[d1_databases\]\][\s\S]*?database_id\s*=\s*)"[^"]*"/, `$1"${d1Id}"`)
+      .replace(/(\[\[kv_namespaces\]\][\s\S]*?\bid\s*=\s*)"[^"]*"/, `$1"${kvId}"`)
+  } else {
+    neu = `${toml.trimEnd()}\n\n${bloecke}\n`
+  }
+
+  writeFileSync(KONFIG, neu)
   console.log(gruen(`\n${KONFIG} aktualisiert.`))
 }
 

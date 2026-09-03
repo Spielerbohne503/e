@@ -17,16 +17,20 @@ not_found_handling = "single-page-application"
 [build]
 command = "npm run build"
 
-# D1 — created once via:
-#   npx wrangler d1 create quitt
-# then paste the returned database_id here.
-[[d1_databases]]
-binding = "DB"
-database_name = "quitt"
-database_id = "PLATZHALTER_D1_ID"
-
-# KV — caches the daily FX rates. Created via:
-#   npx wrangler kv namespace create FX
-[[kv_namespaces]]
-binding = "FX"
-id = "PLATZHALTER_KV_ID"
+# --- RESSOURCEN ---------------------------------------------------------
+# Eingetragen von `npm run setup:cloudflare`. Bis dahin deployt der Worker
+# ohne Datenbank und zeigt statt der App einen Einrichtungs-Hinweis — besser
+# als ein roter Build, der nichts erklärt.
+#
+# Ein Platzhalter statt einer echten ID lässt den Deploy fehlschlagen, also
+# stehen die Blöcke bis zur Einrichtung auskommentiert hier.
+#
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "quitt"
+# database_id = "..."
+#
+# [[kv_namespaces]]
+# binding = "FX"
+# id = "..."
+# --- ENDE RESSOURCEN ----------------------------------------------------

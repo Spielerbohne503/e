@@ -1,4 +1,4 @@
-import type { Env } from './http'
+import type { EnvMitDb as Env } from './http'
 import { jetzt } from './http'
 import type { Budget, Group, Item, Member, Receipt, Settlement, Snapshot, Split } from '../../src/shared/api'
 

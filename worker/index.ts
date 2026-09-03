@@ -1,5 +1,6 @@
 import type { Env } from './lib/http'
-import { behandleApi } from './router'
+import { datenbankFehlt } from './lib/http'
+import { behandleApi, behandleFx } from './router'
 
 /**
  * The Worker entry point.
@@ -15,7 +16,23 @@ export default {
 
     if (url.pathname === '/api' || url.pathname.startsWith('/api/')) {
       try {
-        return await behandleApi(request, env)
+        // Whether the backend is set up at all. No token, no database, so the
+        // app can ask before it tries anything that would fail.
+        if (url.pathname === '/api/status') {
+          return new Response(JSON.stringify({ bereit: Boolean(env.DB), kurse: Boolean(env.FX) }), {
+            headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+          })
+        }
+
+        // Rates need neither the database nor a token, so they answer even
+        // while the rest is still waiting to be set up.
+        if (url.pathname === '/api/fx') return await behandleFx(request, env)
+
+        // Deployed before the database exists: answer with instructions rather
+        // than an internal error, so the page can explain what is missing.
+        if (!env.DB) return datenbankFehlt()
+
+        return await behandleApi(request, { ...env, DB: env.DB })
       } catch (e) {
         // Never leak a stack trace; the message stays factual.
         console.error('API-Fehler', e)

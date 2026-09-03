@@ -1,16 +1,45 @@
 import type { z, ZodError, ZodTypeAny } from 'zod'
 
-/** Cloudflare bindings this project expects. Declared in wrangler.toml. */
+/**
+ * Cloudflare bindings. Declared in wrangler.toml.
+ *
+ * DB and FX are optional at the type level on purpose: the Worker deploys
+ * before `npm run setup:cloudflare` has created them, and it should say so
+ * rather than crash. Without DB the API answers 503 with instructions;
+ * without FX the rates are simply fetched uncached.
+ */
 export interface Env {
-  DB: D1Database
-  FX: KVNamespace
+  DB?: D1Database
+  FX?: KVNamespace
   /** The built single-page app. Serves everything outside /api. */
   ASSETS: Fetcher
 }
 
+/** Narrowed Env for everything that genuinely needs the database. */
+export interface EnvMitDb extends Env {
+  DB: D1Database
+}
+
+/**
+ * The API is useless without D1, so say that plainly instead of failing with
+ * an internal error. 503 is right: the service is not set up yet, and it will
+ * work once it is.
+ */
+export function datenbankFehlt(): Response {
+  return json(
+    {
+      fehler: 'Die Datenbank ist noch nicht eingerichtet',
+      hinweis: 'npm run setup:cloudflare, dann npm run db:remote',
+      einrichtung: true,
+    },
+    503,
+  )
+}
+
+/** Every route runs behind the DB check in worker/index.ts, so it has one. */
 export type Handler = (ctx: {
   request: Request
-  env: Env
+  env: EnvMitDb
   params: Record<string, string>
   url: URL
 }) => Promise<Response>
