@@ -7,6 +7,7 @@ import type {
   Snapshot,
 } from '@/shared/api'
 import { pinFuer, tokenFuer } from '@/lib/speicher'
+import { lokal } from './lokal'
 
 /**
  * The API client. Every request but "create a group" carries the group's
@@ -83,6 +84,42 @@ async function anfrage<T>(
 }
 
 /* ------------------------------------------------------------------ *
+ * Backend choice
+ * ------------------------------------------------------------------ */
+
+/**
+ * Whether the Worker has a database. Asked once per page load; until the
+ * answer is in, the app assumes the server is there, which is the normal case.
+ *
+ * Without D1 every call is served from local storage instead, so the app is
+ * fully usable on one device rather than showing a setup notice and nothing.
+ */
+let serverBereit: boolean | null = null
+
+export async function pruefeBackend(): Promise<boolean> {
+  if (serverBereit !== null) return serverBereit
+  try {
+    const antwort = await fetch('/api/status')
+    if (!antwort.ok) {
+      serverBereit = false
+      return false
+    }
+    const body = (await antwort.json()) as { bereit?: boolean }
+    serverBereit = body.bereit !== false
+  } catch {
+    // Offline: keep the server path, so the UI shows its read-only notice
+    // rather than silently forking into a second, local data set.
+    serverBereit = true
+  }
+  return serverBereit
+}
+
+/** True once the check has run and found no database. */
+export function laeuftLokal(): boolean {
+  return serverBereit === false
+}
+
+/* ------------------------------------------------------------------ *
  * Groups
  * ------------------------------------------------------------------ */
 
@@ -91,20 +128,33 @@ export interface NeueGruppeAntwort extends Snapshot {
   space_token: string
 }
 
+/**
+ * Runs against the Worker when a database is configured, against local
+ * storage when it is not. Both paths return the same shapes, so nothing
+ * above this file needs to know which one is active.
+ */
 export const api = {
-  gruppeAnlegen: (body: {
+  async gruppeAnlegen(body: {
     name: string
     base_currency: string
     members?: Array<{ display_name: string; color: string }>
-  }) => anfrage<NeueGruppeAntwort>('groups', { method: 'POST', body: JSON.stringify(body) }),
+  }): Promise<NeueGruppeAntwort> {
+    if (!(await pruefeBackend())) return lokal.gruppeAnlegen(body)
+    return anfrage<NeueGruppeAntwort>('groups', { method: 'POST', body: JSON.stringify(body) })
+  },
 
-  snapshot: (gruppeId: string) => anfrage<Snapshot>(`groups/${gruppeId}`, { gruppeId }),
+  async snapshot(gruppeId: string): Promise<Snapshot> {
+    if (!(await pruefeBackend())) return lokal.snapshot(gruppeId)
+    return anfrage<Snapshot>(`groups/${gruppeId}`, { gruppeId })
+  },
 
   /** One integer, for the fifteen-second poll. */
-  revision: (gruppeId: string) =>
-    anfrage<{ revision: number }>(`groups/${gruppeId}/revision`, { gruppeId }),
+  async revision(gruppeId: string): Promise<{ revision: number }> {
+    if (!(await pruefeBackend())) return lokal.revision(gruppeId)
+    return anfrage<{ revision: number }>(`groups/${gruppeId}/revision`, { gruppeId })
+  },
 
-  gruppeAendern: (
+  async gruppeAendern(
     gruppeId: string,
     body: {
       name?: string
@@ -113,95 +163,133 @@ export const api = {
       show_zetti?: boolean
       pin?: string | null
     },
-  ) => anfrage<Group>(`groups/${gruppeId}`, { method: 'PATCH', body: JSON.stringify(body), gruppeId }),
+  ): Promise<Group> {
+    if (!(await pruefeBackend())) return lokal.gruppeAendern(gruppeId, body)
+    return anfrage<Group>(`groups/${gruppeId}`, { method: 'PATCH', body: JSON.stringify(body), gruppeId })
+  },
 
-  gruppeLoeschen: (gruppeId: string) =>
-    anfrage<{ geloescht: true }>(`groups/${gruppeId}`, { method: 'DELETE', gruppeId }),
+  async gruppeLoeschen(gruppeId: string): Promise<{ geloescht: true }> {
+    if (!(await pruefeBackend())) return lokal.gruppeLoeschen(gruppeId)
+    return anfrage<{ geloescht: true }>(`groups/${gruppeId}`, { method: 'DELETE', gruppeId })
+  },
 
-  tokenErneuern: (gruppeId: string) =>
-    anfrage<{ space_token: string }>(`groups/${gruppeId}/token`, { method: 'POST', gruppeId }),
+  async tokenErneuern(gruppeId: string): Promise<{ space_token: string }> {
+    if (!(await pruefeBackend())) return lokal.tokenErneuern(gruppeId)
+    return anfrage<{ space_token: string }>(`groups/${gruppeId}/token`, { method: 'POST', gruppeId })
+  },
 
-  mitgliedAnlegen: (gruppeId: string, body: { display_name: string; color: string }) =>
-    anfrage<Member>(`groups/${gruppeId}/members`, {
+  async mitgliedAnlegen(
+    gruppeId: string,
+    body: { display_name: string; color: string },
+  ): Promise<Member> {
+    if (!(await pruefeBackend())) return lokal.mitgliedAnlegen(gruppeId, body)
+    return anfrage<Member>(`groups/${gruppeId}/members`, {
       method: 'POST',
       body: JSON.stringify(body),
       gruppeId,
-    }),
+    })
+  },
 
-  mitgliedAendern: (
+  async mitgliedAendern(
     gruppeId: string,
     mitgliedId: string,
     body: { display_name?: string; color?: string; sort_order?: number; archived?: boolean },
-  ) =>
-    anfrage<Member>(`groups/${gruppeId}/members/${mitgliedId}`, {
+  ): Promise<Member> {
+    if (!(await pruefeBackend())) return lokal.mitgliedAendern(gruppeId, mitgliedId, body)
+    return anfrage<Member>(`groups/${gruppeId}/members/${mitgliedId}`, {
       method: 'PATCH',
       body: JSON.stringify(body),
       gruppeId,
-    }),
+    })
+  },
 
-  mitgliedLoeschen: (gruppeId: string, mitgliedId: string) =>
-    anfrage<{ geloescht?: true; archiviert?: true; grund?: string }>(
+  async mitgliedLoeschen(
+    gruppeId: string,
+    mitgliedId: string,
+  ): Promise<{ geloescht?: true; archiviert?: true; grund?: string }> {
+    if (!(await pruefeBackend())) return lokal.mitgliedLoeschen(gruppeId, mitgliedId)
+    return anfrage<{ geloescht?: true; archiviert?: true; grund?: string }>(
       `groups/${gruppeId}/members/${mitgliedId}`,
       { method: 'DELETE', gruppeId },
-    ),
+    )
+  },
 
-  belegAnlegen: (gruppeId: string, body: unknown) =>
-    anfrage<Receipt>(`groups/${gruppeId}/receipts`, {
+  async belegAnlegen(gruppeId: string, body: unknown): Promise<Receipt> {
+    if (!(await pruefeBackend())) return lokal.belegSpeichern(gruppeId, undefined, body as never)
+    return anfrage<Receipt>(`groups/${gruppeId}/receipts`, {
       method: 'POST',
       body: JSON.stringify(body),
       gruppeId,
-    }),
+    })
+  },
 
-  belegErsetzen: (gruppeId: string, belegId: string, body: unknown) =>
-    anfrage<Receipt>(`groups/${gruppeId}/receipts/${belegId}`, {
+  async belegErsetzen(gruppeId: string, belegId: string, body: unknown): Promise<Receipt> {
+    if (!(await pruefeBackend())) return lokal.belegSpeichern(gruppeId, belegId, body as never)
+    return anfrage<Receipt>(`groups/${gruppeId}/receipts/${belegId}`, {
       method: 'PUT',
       body: JSON.stringify(body),
       gruppeId,
-    }),
+    })
+  },
 
-  belegLoeschen: (gruppeId: string, belegId: string) =>
-    anfrage<{ geloescht: true }>(`groups/${gruppeId}/receipts/${belegId}`, {
+  async belegLoeschen(gruppeId: string, belegId: string): Promise<{ geloescht: true }> {
+    if (!(await pruefeBackend())) return lokal.belegLoeschen(gruppeId, belegId)
+    return anfrage<{ geloescht: true }>(`groups/${gruppeId}/receipts/${belegId}`, {
       method: 'DELETE',
       gruppeId,
-    }),
+    })
+  },
 
-  ausgleichAnlegen: (
+  async ausgleichAnlegen(
     gruppeId: string,
     body: { from_id: string; to_id: string; amount_cents: number },
-  ) =>
-    anfrage<Settlement>(`groups/${gruppeId}/settlements`, {
+  ): Promise<Settlement> {
+    if (!(await pruefeBackend())) return lokal.ausgleichAnlegen(gruppeId, body)
+    return anfrage<Settlement>(`groups/${gruppeId}/settlements`, {
       method: 'POST',
       body: JSON.stringify(body),
       gruppeId,
-    }),
+    })
+  },
 
-  ausgleichLoeschen: (gruppeId: string, ausgleichId: string) =>
-    anfrage<{ geloescht: true }>(`groups/${gruppeId}/settlements/${ausgleichId}`, {
+  async ausgleichLoeschen(gruppeId: string, ausgleichId: string): Promise<{ geloescht: true }> {
+    if (!(await pruefeBackend())) return lokal.ausgleichLoeschen(gruppeId, ausgleichId)
+    return anfrage<{ geloescht: true }>(`groups/${gruppeId}/settlements/${ausgleichId}`, {
       method: 'DELETE',
       gruppeId,
-    }),
+    })
+  },
 
-  budgetAnlegen: (gruppeId: string, body: unknown) =>
-    anfrage<Budget>(`groups/${gruppeId}/budgets`, {
+  async budgetAnlegen(gruppeId: string, body: unknown): Promise<Budget> {
+    if (!(await pruefeBackend())) return lokal.budgetSpeichern(gruppeId, undefined, body as never)
+    return anfrage<Budget>(`groups/${gruppeId}/budgets`, {
       method: 'POST',
       body: JSON.stringify(body),
       gruppeId,
-    }),
+    })
+  },
 
-  budgetAendern: (gruppeId: string, budgetId: string, body: unknown) =>
-    anfrage<Budget>(`groups/${gruppeId}/budgets/${budgetId}`, {
+  async budgetAendern(gruppeId: string, budgetId: string, body: unknown): Promise<Budget> {
+    if (!(await pruefeBackend())) return lokal.budgetSpeichern(gruppeId, budgetId, body as never)
+    return anfrage<Budget>(`groups/${gruppeId}/budgets/${budgetId}`, {
       method: 'PUT',
       body: JSON.stringify(body),
       gruppeId,
-    }),
+    })
+  },
 
-  budgetLoeschen: (gruppeId: string, budgetId: string) =>
-    anfrage<{ geloescht: true }>(`groups/${gruppeId}/budgets/${budgetId}`, {
+  async budgetLoeschen(gruppeId: string, budgetId: string): Promise<{ geloescht: true }> {
+    if (!(await pruefeBackend())) return lokal.budgetLoeschen(gruppeId, budgetId)
+    return anfrage<{ geloescht: true }>(`groups/${gruppeId}/budgets/${budgetId}`, {
       method: 'DELETE',
       gruppeId,
-    }),
+    })
+  },
 
-  /** Exchange rates, served from the KV cache. */
+  /**
+   * Exchange rates. Always from the server — /api/fx needs neither database
+   * nor token, so it answers even when everything else runs locally.
+   */
   kurse: (basis: string) =>
     anfrage<{ base: string; date: string; rates: Record<string, number>; stale?: boolean }>(
       `fx?base=${encodeURIComponent(basis)}`,

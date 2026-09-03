@@ -6,8 +6,8 @@ import { Knopf, KnopfLink } from '@/components/Knopf'
 import { LeerZustand } from '@/components/Zetti'
 import { Skelett } from '@/components/Skelett'
 import { gruppenListe, merkeGruppe, tokenAusHash, type GespeicherteGruppe } from '@/lib/speicher'
-import { ApiFehler } from '@/api/client'
-import { Einrichtung } from '@/components/Einrichtung'
+import { ApiFehler, laeuftLokal, pruefeBackend } from '@/api/client'
+import { LokalHinweis } from '@/components/LokalHinweis'
 import { formatDate } from '@/lib/format'
 
 /**
@@ -22,19 +22,13 @@ export function GruppenListe() {
   const [gruppen, setGruppen] = useState<GespeicherteGruppe[]>(() => gruppenListe())
   const [linkLaeuft, setLinkLaeuft] = useState(false)
   const [linkFehler, setLinkFehler] = useState<string | null>(null)
-  const [brauchtEinrichtung, setBrauchtEinrichtung] = useState(false)
+  const [lokalerModus, setLokalerModus] = useState(false)
 
-  // One cheap call to find out whether the backend is set up at all. Without
-  // it the first thing a person would see is a failing "create group".
+  // Find out once whether the Worker has a database. Without one the app
+  // works against local storage instead, so this only decides whether to
+  // show the notice — nothing is blocked either way.
   useEffect(() => {
-    fetch('/api/status')
-      .then((a) => (a.ok ? (a.json() as Promise<{ bereit?: boolean }>) : null))
-      .then((body) => {
-        if (body && body.bereit === false) setBrauchtEinrichtung(true)
-      })
-      .catch(() => {
-        // Offline is a different problem, handled where it matters.
-      })
+    void pruefeBackend().then(() => setLokalerModus(laeuftLokal()))
   }, [])
 
   // A sync link arrives as #s=<token>. Resolve it, remember the group, open it.
@@ -71,8 +65,6 @@ export function GruppenListe() {
     })()
   }, [navigate])
 
-  if (brauchtEinrichtung) return <Einrichtung />
-
   if (linkLaeuft) {
     return (
       <Rahmen>
@@ -85,6 +77,8 @@ export function GruppenListe() {
 
   return (
     <Rahmen>
+      {lokalerModus && <LokalHinweis />}
+
       {linkFehler && (
         <div className="mt-4 rounded-karte bg-fehler-weich text-fehler px-4 py-3" role="alert">
           {linkFehler}
